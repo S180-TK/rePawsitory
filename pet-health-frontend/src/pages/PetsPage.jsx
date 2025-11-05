@@ -48,9 +48,17 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet }) => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {pets.map(pet => (
-          <div key={pet.id} className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow overflow-hidden cursor-pointer">
-            <div className="bg-gradient-to-br from-blue-400 to-blue-600 h-32 flex items-center justify-center text-6xl">
-              {pet.photo}
+          <div key={pet.id || pet._id} className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow overflow-hidden cursor-pointer">
+            <div className="bg-gradient-to-br from-blue-400 to-blue-600 h-32 flex items-center justify-center overflow-hidden">
+              {pet.photo && pet.photo.startsWith('data:image') ? (
+                <img 
+                  src={pet.photo} 
+                  alt={pet.name} 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-6xl">{pet.photo || '🐾'}</span>
+              )}
             </div>
             <div className="p-6">
               <h3 className="text-xl font-bold text-gray-800 mb-2">{pet.name}</h3>

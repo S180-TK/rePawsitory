@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X } from 'lucide-react';
+import { X, Upload, XCircle } from 'lucide-react';
 
 const AddPetModal = ({ isOpen, onClose, onSave }) => {
   const [formData, setFormData] = useState({
@@ -8,8 +8,9 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
     species: 'Dog',
     breed: '',
     age: '',
-    photo: '🐾'
+    photo: ''
   });
+  const [imagePreview, setImagePreview] = useState(null);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -25,6 +26,67 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
         ...prev,
         [name]: ''
       }));
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setErrors(prev => ({
+          ...prev,
+          image: 'Please select an image file'
+        }));
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setErrors(prev => ({
+          ...prev,
+          image: 'Image size must be less than 5MB'
+        }));
+        return;
+      }
+
+      // Convert to base64
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result;
+        setFormData(prev => ({
+          ...prev,
+          photo: base64String
+        }));
+        setImagePreview(base64String);
+        // Clear error if exists
+        if (errors.image) {
+          setErrors(prev => ({
+            ...prev,
+            image: ''
+          }));
+        }
+      };
+      reader.onerror = () => {
+        setErrors(prev => ({
+          ...prev,
+          image: 'Failed to read image file'
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormData(prev => ({
+      ...prev,
+      photo: ''
+    }));
+    setImagePreview(null);
+    // Reset file input
+    const fileInput = document.getElementById('image-upload');
+    if (fileInput) {
+      fileInput.value = '';
     }
   };
 
@@ -61,7 +123,7 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
         species: formData.species.trim(),
         breed: formData.breed.trim() || '',
         age: formData.age ? parseFloat(formData.age) : 0,
-        photo: formData.photo.trim() || '🐾'
+        photo: formData.photo || ''
       };
       
       await onSave(petData);
@@ -72,9 +134,15 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
         species: 'Dog',
         breed: '',
         age: '',
-        photo: '🐾'
+        photo: ''
       });
+      setImagePreview(null);
       setErrors({});
+      // Reset file input
+      const fileInput = document.getElementById('image-upload');
+      if (fileInput) {
+        fileInput.value = '';
+      }
       onClose();
     } catch (error) {
       console.error('Error saving pet:', error);
@@ -90,9 +158,15 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
       species: 'Dog',
       breed: '',
       age: '',
-      photo: '🐾'
+      photo: ''
     });
+    setImagePreview(null);
     setErrors({});
+    // Reset file input
+    const fileInput = document.getElementById('image-upload');
+    if (fileInput) {
+      fileInput.value = '';
+    }
     onClose();
   };
 
@@ -191,20 +265,58 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
           </div>
 
           <div>
-            <label htmlFor="photo" className="block text-sm font-semibold text-gray-700 mb-2">
-              Photo Emoji
+            <label htmlFor="image-upload" className="block text-sm font-semibold text-gray-700 mb-2">
+              Pet Photo
             </label>
-            <input
-              type="text"
-              id="photo"
-              name="photo"
-              value={formData.photo}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="🐾 (emoji or text)"
-              maxLength="2"
-            />
-            <p className="mt-1 text-xs text-gray-500">Enter an emoji or character to represent your pet</p>
+            
+            {imagePreview ? (
+              <div className="relative">
+                <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-gray-300">
+                  <img 
+                    src={imagePreview} 
+                    alt="Pet preview" 
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                    aria-label="Remove image"
+                  >
+                    <XCircle size={20} />
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('image-upload').click()}
+                  className="mt-2 w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-semibold"
+                >
+                  Change Photo
+                </button>
+              </div>
+            ) : (
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                <input
+                  type="file"
+                  id="image-upload"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+                <label htmlFor="image-upload" className="cursor-pointer">
+                  <Upload size={32} className="mx-auto text-gray-400 mb-2" />
+                  <p className="text-sm text-gray-600 font-semibold mb-1">
+                    Click to upload or drag and drop
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    PNG, JPG, GIF up to 5MB
+                  </p>
+                </label>
+              </div>
+            )}
+            
+            {errors.image && <p className="mt-1 text-sm text-red-500">{errors.image}</p>}
+            <p className="mt-1 text-xs text-gray-500">Upload a photo of your pet (optional)</p>
           </div>
 
           <div className="flex gap-3 pt-4">

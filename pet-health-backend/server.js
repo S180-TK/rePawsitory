@@ -4,21 +4,11 @@ const cors = require("cors");
 const app = express();
 const mongoose = require('mongoose');
 const Pet = require('./Pet');
+const { connectToDatabase } = require('./db');
 app.use(cors()); // allow React frontend to access this API
 app.use(express.json());
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/pethealthdb';
-
 // Connect to MongoDB
-mongoose
-  .connect(MONGO_URI, {
-    serverSelectionTimeoutMS: 5000,
-  })
-  .then(() => {
-    console.log(`✅ Connected to MongoDB at ${MONGO_URI}`);
-  })
-  .catch((err) => {
-    console.error('❌ MongoDB connection error:', err.message);
-  });
+connectToDatabase();
 
   
 // Endpoint to send data to frontend

@@ -23,8 +23,9 @@ const petSchema = new mongoose.Schema({
   },
   photo: {
     type: String,
-    default: '',
-    trim: true
+    default: ''
+    // Note: trim: true removed to preserve base64 image data integrity
+    // MongoDB String fields can store up to 16MB, sufficient for base64 images
   }
 }, {
   timestamps: true // This adds createdAt and updatedAt fields automatically
