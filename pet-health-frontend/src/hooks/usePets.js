@@ -10,7 +10,12 @@ export const usePets = () => {
 
     const fetchPets = async () => {
       try {
-        const response = await fetch('http://localhost:5001/pets');
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:5001/pets', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         if (!response.ok) {
           throw new Error(`Request failed with status ${response.status}`);
         }
@@ -38,9 +43,13 @@ export const usePets = () => {
 
   const addPet = async (petData = { name: 'New Pet', species: 'Dog', breed: 'Unknown', age: 0, photo: '🐾' }) => {
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:5001/pets', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(petData)
       });
       if (!response.ok) {
@@ -57,5 +66,6 @@ export const usePets = () => {
 
   return { pets, loading, error, addPet };
 };
+
 
 

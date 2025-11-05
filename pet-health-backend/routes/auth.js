@@ -10,7 +10,7 @@ const JWT_SECRET = 'your-secret-key';
 // Register endpoint
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, role, clinic, license, specialization } = req.body;
+    const { name, email, password, role, clinic, license, specialization, phone, address } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -34,6 +34,16 @@ router.post('/register', async (req, res) => {
       password, // Will be hashed by the pre-save middleware
       role: role || 'pet_owner'
     };
+
+    // Add optional phone field
+    if (phone) {
+      userData.phone = phone;
+    }
+
+    // Add optional address field
+    if (address) {
+      userData.address = address;
+    }
 
     // Add vet-specific fields if role is veterinarian
     if (role === 'veterinarian') {

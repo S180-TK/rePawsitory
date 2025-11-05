@@ -37,6 +37,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: function() { return this.role === 'veterinarian'; }
   },
+  // Contact information
+  phone: {
+    type: String,
+    trim: true
+  },
   // Address information
   address: {
     street: String,
