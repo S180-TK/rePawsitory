@@ -40,12 +40,6 @@ const petSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
-  microchipId: {
-    type: String,
-    unique: true,
-    sparse: true,
-    trim: true
-  },
   photoUrl: {
     type: String,
     trim: true

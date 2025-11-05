@@ -7,8 +7,19 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
     name: '',
     species: 'Dog',
     breed: '',
-    age: '',
-    photo: ''
+    dateOfBirth: '',
+    gender: 'male',
+    weight: '',
+    weightUnit: 'kg',
+    color: '',
+    microchipId: '',
+    photoUrl: '',
+    allergies: '',
+    chronicConditions: '',
+    emergencyContactName: '',
+    emergencyContactPhone: '',
+    emergencyContactEmail: '',
+    emergencyContactRelationship: ''
   });
   const [imagePreview, setImagePreview] = useState(null);
   const [errors, setErrors] = useState({});
@@ -29,7 +40,7 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
     }
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
       // Validate file type
@@ -50,15 +61,36 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
         return;
       }
 
-      // Convert to base64
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result;
+      // Upload the image to the server
+      try {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:5000/api/upload/pet-image', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to upload image');
+        }
+
+        const data = await response.json();
+        
+        // Store the image URL from server
         setFormData(prev => ({
           ...prev,
-          photo: base64String
+          photoUrl: data.imageUrl
         }));
-        setImagePreview(base64String);
+        
+        // Create preview URL for display
+        const previewUrl = URL.createObjectURL(file);
+        setImagePreview(previewUrl);
+        
         // Clear error if exists
         if (errors.image) {
           setErrors(prev => ({
@@ -66,21 +98,20 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
             image: ''
           }));
         }
-      };
-      reader.onerror = () => {
+      } catch (error) {
+        console.error('Upload error:', error);
         setErrors(prev => ({
           ...prev,
-          image: 'Failed to read image file'
+          image: 'Failed to upload image. Please try again.'
         }));
-      };
-      reader.readAsDataURL(file);
+      }
     }
   };
 
   const handleRemoveImage = () => {
     setFormData(prev => ({
       ...prev,
-      photo: ''
+      photoUrl: ''
     }));
     setImagePreview(null);
     // Reset file input
@@ -101,8 +132,16 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
       newErrors.species = 'Species is required';
     }
     
-    if (formData.age && (isNaN(formData.age) || parseFloat(formData.age) < 0)) {
-      newErrors.age = 'Age must be a valid number';
+    if (!formData.dateOfBirth) {
+      newErrors.dateOfBirth = 'Date of birth is required';
+    }
+    
+    if (!formData.gender) {
+      newErrors.gender = 'Gender is required';
+    }
+    
+    if (formData.weight && (isNaN(formData.weight) || parseFloat(formData.weight) <= 0)) {
+      newErrors.weight = 'Weight must be a valid positive number';
     }
 
     setErrors(newErrors);
@@ -122,8 +161,28 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
         name: formData.name.trim(),
         species: formData.species.trim(),
         breed: formData.breed.trim() || '',
-        age: formData.age ? parseFloat(formData.age) : 0,
-        photo: formData.photo || ''
+        dateOfBirth: formData.dateOfBirth,
+        gender: formData.gender,
+        weight: formData.weight ? {
+          value: parseFloat(formData.weight),
+          unit: formData.weightUnit,
+          date: new Date()
+        } : undefined,
+        color: formData.color.trim() || '',
+        microchipId: formData.microchipId.trim() || '',
+        photoUrl: formData.photoUrl || '',
+        allergies: formData.allergies ? formData.allergies.split(',').map(a => a.trim()).filter(a => a) : [],
+        chronicConditions: formData.chronicConditions ? formData.chronicConditions.split(',').map(c => c.trim()).filter(c => c).map(condition => ({
+          condition,
+          diagnosedDate: null,
+          notes: ''
+        })) : [],
+        emergencyContact: (formData.emergencyContactName || formData.emergencyContactPhone || formData.emergencyContactEmail) ? {
+          name: formData.emergencyContactName.trim() || '',
+          phone: formData.emergencyContactPhone.trim() || '',
+          email: formData.emergencyContactEmail.trim() || '',
+          relationship: formData.emergencyContactRelationship.trim() || ''
+        } : undefined
       };
       
       await onSave(petData);
@@ -133,8 +192,19 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
         name: '',
         species: 'Dog',
         breed: '',
-        age: '',
-        photo: ''
+        dateOfBirth: '',
+        gender: 'male',
+        weight: '',
+        weightUnit: 'kg',
+        color: '',
+        microchipId: '',
+        photoUrl: '',
+        allergies: '',
+        chronicConditions: '',
+        emergencyContactName: '',
+        emergencyContactPhone: '',
+        emergencyContactEmail: '',
+        emergencyContactRelationship: ''
       });
       setImagePreview(null);
       setErrors({});
@@ -157,8 +227,19 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
       name: '',
       species: 'Dog',
       breed: '',
-      age: '',
-      photo: ''
+      dateOfBirth: '',
+      gender: 'male',
+      weight: '',
+      weightUnit: 'kg',
+      color: '',
+      microchipId: '',
+      photoUrl: '',
+      allergies: '',
+      chronicConditions: '',
+      emergencyContactName: '',
+      emergencyContactPhone: '',
+      emergencyContactEmail: '',
+      emergencyContactRelationship: ''
     });
     setImagePreview(null);
     setErrors({});
@@ -245,23 +326,203 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
           </div>
 
           <div>
-            <label htmlFor="age" className="block text-sm font-semibold text-gray-700 mb-2">
-              Age (years)
+            <label htmlFor="dateOfBirth" className="block text-sm font-semibold text-gray-700 mb-2">
+              Date of Birth <span className="text-red-500">*</span>
             </label>
             <input
-              type="number"
-              id="age"
-              name="age"
-              value={formData.age}
+              type="date"
+              id="dateOfBirth"
+              name="dateOfBirth"
+              value={formData.dateOfBirth}
               onChange={handleChange}
-              min="0"
-              step="0.1"
               className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.age ? 'border-red-500' : 'border-gray-300'
+                errors.dateOfBirth ? 'border-red-500' : 'border-gray-300'
               }`}
-              placeholder="Enter age (optional)"
             />
-            {errors.age && <p className="mt-1 text-sm text-red-500">{errors.age}</p>}
+            {errors.dateOfBirth && <p className="mt-1 text-sm text-red-500">{errors.dateOfBirth}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="gender" className="block text-sm font-semibold text-gray-700 mb-2">
+              Gender <span className="text-red-500">*</span>
+            </label>
+            <select
+              id="gender"
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
+              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                errors.gender ? 'border-red-500' : 'border-gray-300'
+              }`}
+            >
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="unknown">Unknown</option>
+            </select>
+            {errors.gender && <p className="mt-1 text-sm text-red-500">{errors.gender}</p>}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="weight" className="block text-sm font-semibold text-gray-700 mb-2">
+                Weight
+              </label>
+              <input
+                type="number"
+                id="weight"
+                name="weight"
+                value={formData.weight}
+                onChange={handleChange}
+                min="0"
+                step="0.1"
+                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.weight ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Weight"
+              />
+              {errors.weight && <p className="mt-1 text-sm text-red-500">{errors.weight}</p>}
+            </div>
+            <div>
+              <label htmlFor="weightUnit" className="block text-sm font-semibold text-gray-700 mb-2">
+                Unit
+              </label>
+              <select
+                id="weightUnit"
+                name="weightUnit"
+                value={formData.weightUnit}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="kg">kg</option>
+                <option value="lbs">lbs</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="color" className="block text-sm font-semibold text-gray-700 mb-2">
+              Color
+            </label>
+            <input
+              type="text"
+              id="color"
+              name="color"
+              value={formData.color}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter color (optional)"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="microchipId" className="block text-sm font-semibold text-gray-700 mb-2">
+              Microchip ID
+            </label>
+            <input
+              type="text"
+              id="microchipId"
+              name="microchipId"
+              value={formData.microchipId}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter microchip ID (optional)"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="allergies" className="block text-sm font-semibold text-gray-700 mb-2">
+              Allergies
+            </label>
+            <input
+              type="text"
+              id="allergies"
+              name="allergies"
+              value={formData.allergies}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Comma-separated (e.g., peanuts, dairy)"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="chronicConditions" className="block text-sm font-semibold text-gray-700 mb-2">
+              Chronic Conditions
+            </label>
+            <input
+              type="text"
+              id="chronicConditions"
+              name="chronicConditions"
+              value={formData.chronicConditions}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Comma-separated (e.g., diabetes, arthritis)"
+            />
+          </div>
+
+          <div className="pt-4 border-t border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-800 mb-3">Emergency Contact</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="emergencyContactName" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  id="emergencyContactName"
+                  name="emergencyContactName"
+                  value={formData.emergencyContactName}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Emergency contact name"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="emergencyContactPhone" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Phone
+                </label>
+                <input
+                  type="tel"
+                  id="emergencyContactPhone"
+                  name="emergencyContactPhone"
+                  value={formData.emergencyContactPhone}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Emergency contact phone"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="emergencyContactEmail" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="emergencyContactEmail"
+                  name="emergencyContactEmail"
+                  value={formData.emergencyContactEmail}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Emergency contact email"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="emergencyContactRelationship" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Relationship
+                </label>
+                <input
+                  type="text"
+                  id="emergencyContactRelationship"
+                  name="emergencyContactRelationship"
+                  value={formData.emergencyContactRelationship}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., Family, Friend, Neighbor"
+                />
+              </div>
+            </div>
           </div>
 
           <div>
