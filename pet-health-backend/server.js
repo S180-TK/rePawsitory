@@ -8,7 +8,13 @@ const { connectToDatabase } = require('./db');
 const authRoutes = require('./routes/auth');
 const { auth, checkRole } = require('./middleware/auth');
 
-app.use(cors()); // allow React frontend to access this API
+// CORS configuration
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // Use authentication routes
@@ -35,6 +41,67 @@ app.get('/api/profile', auth, async (req, res) => {
 // Protected route with role check
 app.get('/api/vet-only', auth, checkRole(['veterinarian']), (req, res) => {
   res.json({ message: 'Welcome, veterinarian!' });
+});
+
+// Get patients for veterinarian
+app.get('/api/vet/patients', auth, checkRole(['veterinarian']), async (req, res) => {
+  try {
+    // Find all pets this vet has access to
+    const petAccesses = await PetAccess.find({
+      veterinarian: req.user._id,
+      isRevoked: false
+    }).populate({
+      path: 'pet',
+      populate: {
+        path: 'owner',
+        select: 'name email'
+      }
+    });
+
+    // Extract and format pet data with owner info
+    const patients = petAccesses
+      .filter(access => access.pet) // Filter out any null pets
+      .map(access => ({
+        _id: access.pet._id,
+        name: access.pet.name,
+        species: access.pet.species,
+        breed: access.pet.breed,
+        dateOfBirth: access.pet.dateOfBirth,
+        gender: access.pet.gender,
+        weight: access.pet.weight,
+        color: access.pet.color,
+        microchipId: access.pet.microchipId,
+        photoUrl: access.pet.photoUrl,
+        allergies: access.pet.allergies,
+        chronicConditions: access.pet.chronicConditions,
+        owner: {
+          _id: access.pet.owner._id,
+          name: access.pet.owner.name,
+          email: access.pet.owner.email
+        },
+        accessLevel: access.accessLevel,
+        permissions: access.permissions
+      }));
+
+    res.json(patients);
+  } catch (error) {
+    console.error('Error fetching patients:', error);
+    res.status(500).json({ error: 'Failed to fetch patients' });
+  }
+});
+
+// Get all veterinarians (for pet owners to search and request access)
+app.get('/api/vets', auth, async (req, res) => {
+  try {
+    const veterinarians = await User.find({ role: 'veterinarian' })
+      .select('name email clinic license specialization address')
+      .lean();
+
+    res.json(veterinarians);
+  } catch (error) {
+    console.error('Error fetching veterinarians:', error);
+    res.status(500).json({ error: 'Failed to fetch veterinarians' });
+  }
 });
 
 // Connect to MongoDB
@@ -78,4 +145,5 @@ app.post("/pets", async (req, res) => {
 });
 
 // Start server
-app.listen(5000, () => console.log("✅ Server running on http://localhost:5000"));
+const PORT = process.env.PORT || 5001;
+app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));

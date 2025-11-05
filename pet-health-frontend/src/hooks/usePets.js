@@ -10,7 +10,7 @@ export const usePets = () => {
 
     const fetchPets = async () => {
       try {
-        const response = await fetch('http://localhost:5000/pets');
+        const response = await fetch('http://localhost:5001/pets');
         if (!response.ok) {
           throw new Error(`Request failed with status ${response.status}`);
         }
@@ -38,7 +38,7 @@ export const usePets = () => {
 
   const addPet = async (petData = { name: 'New Pet', species: 'Dog', breed: 'Unknown', age: 0, photo: '🐾' }) => {
     try {
-      const response = await fetch('http://localhost:5000/pets', {
+      const response = await fetch('http://localhost:5001/pets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(petData)
