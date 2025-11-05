@@ -3,10 +3,40 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const mongoose = require('mongoose');
-const Pet = require('./Pet');
+const { User, Pet, MedicalRecord, PetAccess } = require('./models');
 const { connectToDatabase } = require('./db');
+const authRoutes = require('./routes/auth');
+const { auth, checkRole } = require('./middleware/auth');
+
 app.use(cors()); // allow React frontend to access this API
 app.use(express.json());
+
+// Use authentication routes
+app.use('/api', authRoutes);
+
+// Protected route example
+app.get('/api/profile', auth, async (req, res) => {
+  try {
+    // req.user is set by auth middleware
+    res.json({
+      message: 'Profile accessed successfully',
+      user: {
+        id: req.user._id,
+        name: req.user.name,
+        email: req.user.email,
+        role: req.user.role
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Protected route with role check
+app.get('/api/vet-only', auth, checkRole(['veterinarian']), (req, res) => {
+  res.json({ message: 'Welcome, veterinarian!' });
+});
+
 // Connect to MongoDB
 connectToDatabase();
 

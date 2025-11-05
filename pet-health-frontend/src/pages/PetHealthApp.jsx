@@ -1,20 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Layout from '../components/layout/Layout';
 import PageRouter from '../components/PageRouter';
 import { useNavigation } from '../hooks/useNavigation';
 import { useMockData } from '../hooks/useMockData';
 import { usePets } from '../hooks/usePets';
 import LoginPage from './LoginPage';
+import SignupPage from './SignupPage';
 
 const PetHealthApp = () => {
   const navigation = useNavigation();
+  const [authView, setAuthView] = useState('login'); // 'login' | 'signup'
   const { recentRecords } = useMockData();
   const { pets, loading, error, addPet } = usePets();
 
   return (
     <>
       {!navigation.isAuthenticated ? (
-        <LoginPage login={navigation.login} />
+        authView === 'login' ? (
+          <LoginPage 
+            login={navigation.login} 
+            switchToSignup={() => setAuthView('signup')} 
+          />
+        ) : (
+          <SignupPage 
+            signup={navigation.signup} 
+            switchToLogin={() => setAuthView('login')} 
+          />
+        )
       ) : (
         <Layout 
           sidebarOpen={navigation.sidebarOpen}
@@ -33,7 +45,6 @@ const PetHealthApp = () => {
             petsLoading={loading}
             petsError={error}
             addPet={addPet}
-            setCurrentPage={navigation.setCurrentPage}
           />
         </Layout>
       )}

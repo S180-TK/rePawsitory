@@ -26,6 +26,18 @@ export const useNavigation = () => {
   const navItems = userRole === 'owner' ? ownerNavItems : vetNavItems;
 
   const login = (role) => {
+    console.log('Login called with role:', role); // Add debug logging
+    if (role !== 'owner' && role !== 'vet') {
+      console.error('Invalid role:', role);
+      return;
+    }
+    setUserRole(role);
+    setIsAuthenticated(true);
+    setCurrentPage('dashboard');
+  };
+
+  const signup = (role) => {
+    // In a real app, call backend to create account then set auth
     if (role !== 'owner' && role !== 'vet') return;
     setUserRole(role);
     setIsAuthenticated(true);
@@ -48,6 +60,7 @@ export const useNavigation = () => {
     navItems,
     isAuthenticated,
     login,
+    signup,
     logout
   };
 };

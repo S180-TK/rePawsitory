@@ -21,15 +21,13 @@ const petSchema = new mongoose.Schema({
     default: 0,
     min: 0
   },
+  // Stores either an emoji/text or a base64 data URL for uploaded images
   photo: {
     type: String,
     default: ''
-    // Note: trim: true removed to preserve base64 image data integrity
-    // MongoDB String fields can store up to 16MB, sufficient for base64 images
   }
 }, {
-  timestamps: true // This adds createdAt and updatedAt fields automatically
+  timestamps: true
 });
 
 module.exports = mongoose.model('Pet', petSchema);
-
