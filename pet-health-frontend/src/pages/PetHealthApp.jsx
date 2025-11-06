@@ -66,6 +66,7 @@ const PetHealthApp = () => {
             patients={patients}
             patientsLoading={patientsLoading}
             patientsError={patientsError}
+            setCurrentPage={navigation.setCurrentPage}
           />
         </Layout>
       )}

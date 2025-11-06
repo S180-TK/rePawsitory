@@ -19,7 +19,6 @@ export const useNavigation = () => {
   const vetNavItems = [
     { id: 'dashboard', icon: Home, label: 'Dashboard' },
     { id: 'patients', icon: Users, label: 'My Patients' },
-    { id: 'appointments', icon: Calendar, label: 'Appointments' },
     { id: 'settings', icon: Settings, label: 'Settings' }
   ];
 

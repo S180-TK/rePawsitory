@@ -16,11 +16,12 @@ const PageRouter = ({
   addPet,
   patients,
   patientsLoading,
-  patientsError
+  patientsError,
+  setCurrentPage
 }) => {
   switch (currentPage) {
     case 'dashboard':
-      return <DashboardPage userRole={userRole} pets={pets} recentRecords={recentRecords} petsLoading={petsLoading} petsError={petsError} addPet={addPet} />;
+      return <DashboardPage userRole={userRole} pets={pets} recentRecords={recentRecords} petsLoading={petsLoading} petsError={petsError} addPet={addPet} setCurrentPage={setCurrentPage} />;
     case 'pets':
       // Pet owners see their own pets
       return <PetsPage pets={pets} petsLoading={petsLoading} petsError={petsError} addPet={addPet} />;
@@ -34,7 +35,7 @@ const PageRouter = ({
     case 'settings':
       return <SettingsPage />;
     default:
-      return <DashboardPage userRole={userRole} pets={pets} recentRecords={recentRecords} petsLoading={petsLoading} petsError={petsError} addPet={addPet} />;
+      return <DashboardPage userRole={userRole} pets={pets} recentRecords={recentRecords} petsLoading={petsLoading} petsError={petsError} addPet={addPet} setCurrentPage={setCurrentPage} />;
   }
 };
 

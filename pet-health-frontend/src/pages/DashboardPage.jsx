@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, FileText, Users, Bell, AlertTriangle, Settings } from 'lucide-react';
-import { useNavigation } from '../hooks/useNavigation';
 
-const DashboardPage = ({ userRole, pets, recentRecords, petsLoading, petsError }) => {
-  const { navigateTo } = useNavigation();
-  const [profileComplete, setProfileComplete] = useState(true);
+const DashboardPage = ({ userRole, pets, recentRecords, petsLoading, petsError, setCurrentPage }) => {
+  const [profileComplete, setProfileComplete] = useState(true); // Default to true to avoid showing warning before check
   const [checkingProfile, setCheckingProfile] = useState(true);
 
   useEffect(() => {
@@ -19,10 +17,17 @@ const DashboardPage = ({ userRole, pets, recentRecords, petsLoading, petsError }
 
         if (response.ok) {
           const data = await response.json();
-          setProfileComplete(data.user.profileCompleted || false);
+          // Set profile complete based on backend response
+          // If profileCompleted is explicitly true, mark as complete
+          // Otherwise mark as incomplete
+          const isComplete = data.user.profileCompleted === true;
+          console.log('Profile completion check:', isComplete, data.user);
+          setProfileComplete(isComplete);
         }
       } catch (error) {
         console.error('Error checking profile:', error);
+        // On error, assume profile is complete to avoid false warnings
+        setProfileComplete(true);
       } finally {
         setCheckingProfile(false);
       }
@@ -54,7 +59,7 @@ const DashboardPage = ({ userRole, pets, recentRecords, petsLoading, petsError }
                 {' '}before you can {userRole === 'owner' ? 'add pets or grant access to veterinarians' : 'view your assigned patients'}.
               </p>
               <button
-                onClick={() => navigateTo('settings')}
+                onClick={() => setCurrentPage('settings')}
                 className="flex items-center gap-2 bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700 transition-colors font-semibold"
               >
                 <Settings size={18} />
@@ -139,9 +144,6 @@ const DashboardPage = ({ userRole, pets, recentRecords, petsLoading, petsError }
           <div className="space-y-2">
             <button className="w-full text-left px-4 py-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors">
               + Add Medical Record
-            </button>
-            <button className="w-full text-left px-4 py-3 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors">
-              📅 Schedule Appointment
             </button>
             <button className="w-full text-left px-4 py-3 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors">
               🔗 Share Pet Records
