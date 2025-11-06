@@ -216,15 +216,31 @@ const PetRecordsPage = ({ pet, onBack, viewOnly = false, isOwner = false }) => {
           </div>
         </div>
 
-        {/* Add Record Button - Bottom */}
+        {/* Action Buttons - Bottom */}
         {!viewOnly && (
           <div className="mt-6 pt-6 border-t border-gray-200">
-            <button 
-              onClick={() => setIsAddOpen(true)} 
-              className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-md hover:shadow-lg"
-            >
-              + Add Medical Record
-            </button>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setIsAddOpen(true)} 
+                className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-md hover:shadow-lg"
+              >
+                + Add Medical Record
+              </button>
+              {isOwner && (
+                <button 
+                  onClick={() => {
+                    // Trigger edit mode - we'll pass this handler from PetsPage
+                    if (pet.onEdit) {
+                      pet.onEdit();
+                    }
+                  }} 
+                  className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-semibold shadow-md hover:shadow-lg flex items-center gap-2"
+                >
+                  <Edit2 size={18} />
+                  Edit Pet
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>

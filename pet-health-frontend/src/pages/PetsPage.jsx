@@ -85,9 +85,19 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet }) => {
   if (selectedPet && viewMode === 'view') {
     return (
       <PetRecordsPage 
-        pet={selectedPet} 
-        onBack={() => setSelectedPet(null)}
-        viewOnly={true}
+        pet={{
+          ...selectedPet,
+          onEdit: () => {
+            setEditingPet(selectedPet);
+            setSelectedPet(null);
+            setViewMode(null);
+          }
+        }} 
+        onBack={() => {
+          setSelectedPet(null);
+          setViewMode(null);
+        }}
+        viewOnly={false}
         isOwner={true}
       />
     );
@@ -178,7 +188,7 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {pets.map(pet => (
           <div key={pet.id || pet._id} className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow overflow-hidden cursor-pointer">
-            <div className="bg-gradient-to-br from-blue-400 to-blue-600 h-32 flex items-center justify-center overflow-hidden relative">
+            <div className="bg-gradient-to-br from-blue-400 to-blue-600 aspect-square flex items-center justify-center overflow-hidden relative">
               {pet.photoUrl ? (
                 <img 
                   src={`http://localhost:5001${pet.photoUrl}`}
@@ -186,7 +196,7 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet }) => {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-6xl">🐾</span>
+                <span className="text-8xl">🐾</span>
               )}
               {pet.microchipId && (
                 <div className="absolute top-2 right-2 bg-white/90 rounded-full px-2 py-1 text-xs font-semibold text-blue-700">
@@ -195,62 +205,23 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet }) => {
               )}
             </div>
             <div className="p-6">
-              <div className="flex items-start justify-between mb-3">
+              <div className="flex items-start justify-between mb-4">
                 <div>
                   <h3 className="text-xl font-bold text-gray-800">{pet.name}</h3>
-                  <p className="text-sm text-gray-500">{pet.breed || 'Mixed breed'}</p>
+                  <p className="text-sm text-gray-500">{pet.species} • {pet.breed || 'Mixed breed'}</p>
                 </div>
-                <span className="text-2xl">{pet.species === 'Dog' ? '🐕' : pet.species === 'Cat' ? '🐈' : '🐾'}</span>
+                <span className="text-3xl">{pet.species === 'Dog' ? '🐕' : pet.species === 'Cat' ? '🐈' : '🐾'}</span>
               </div>
 
-              <div className="space-y-2 text-sm text-gray-600 mb-4">
-                <div className="flex items-center gap-2">
-                  <Calendar size={16} className="text-blue-600" />
-                  <span><span className="font-semibold">Age:</span> {calculateAge(pet.dateOfBirth)}</span>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <Heart size={16} className="text-pink-600" />
-                  <span>{getGenderDisplay(pet.gender)}</span>
-                </div>
-
-                {pet.weight && pet.weight.value && (
-                  <div className="flex items-center gap-2">
-                    <Weight size={16} className="text-green-600" />
-                    <span><span className="font-semibold">Weight:</span> {pet.weight.value} {pet.weight.unit}</span>
-                  </div>
-                )}
-
-                {pet.color && (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full border-2 border-gray-300" style={{backgroundColor: pet.color.toLowerCase()}}></div>
-                    <span><span className="font-semibold">Color:</span> {pet.color}</span>
-                  </div>
-                )}
-
-                {pet.allergies && pet.allergies.length > 0 && (
-                  <div className="flex items-center gap-2">
-                    <AlertCircle size={16} className="text-red-600" />
-                    <span className="text-red-600 font-semibold">{pet.allergies.length} Allerg{pet.allergies.length > 1 ? 'ies' : 'y'}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-4 flex gap-2">
+              <div className="mt-4">
                 <button 
                   onClick={() => {
                     setSelectedPet(pet);
                     setViewMode('view');
                   }}
-                  className="flex-1 bg-blue-100 text-blue-700 py-2 rounded-lg hover:bg-blue-200 transition-colors text-sm font-semibold"
+                  className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold"
                 >
                   View Details
-                </button>
-                <button 
-                  onClick={() => setEditingPet(pet)}
-                  className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm font-semibold"
-                >
-                  Edit
                 </button>
               </div>
             </div>
