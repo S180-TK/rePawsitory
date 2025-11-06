@@ -560,6 +560,59 @@ app.post("/pets", auth, async (req, res) => {
   }
 });
 
+// Update pet
+app.put("/pets/:id", auth, async (req, res) => {
+  try {
+    const petId = req.params.id;
+    
+    // Find the pet
+    const pet = await Pet.findById(petId);
+    if (!pet) {
+      return res.status(404).json({ error: 'Pet not found' });
+    }
+
+    // Check if user is the owner
+    if (pet.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ error: 'Not authorized to update this pet' });
+    }
+
+    const { 
+      name, 
+      species, 
+      breed, 
+      dateOfBirth, 
+      gender, 
+      weight, 
+      color, 
+      microchipId, 
+      photoUrl, 
+      allergies, 
+      chronicConditions, 
+      emergencyContact 
+    } = req.body;
+
+    // Update pet fields
+    if (name !== undefined) pet.name = name.trim();
+    if (species !== undefined) pet.species = species.trim();
+    if (breed !== undefined) pet.breed = breed.trim();
+    if (dateOfBirth !== undefined) pet.dateOfBirth = new Date(dateOfBirth);
+    if (gender !== undefined) pet.gender = gender;
+    if (weight !== undefined) pet.weight = weight;
+    if (color !== undefined) pet.color = color.trim();
+    if (microchipId !== undefined) pet.microchipId = microchipId.trim();
+    if (photoUrl !== undefined) pet.photoUrl = photoUrl;
+    if (allergies !== undefined) pet.allergies = allergies;
+    if (chronicConditions !== undefined) pet.chronicConditions = chronicConditions;
+    if (emergencyContact !== undefined) pet.emergencyContact = emergencyContact;
+
+    const updated = await pet.save();
+    return res.status(200).json(updated);
+  } catch (err) {
+    console.error('Error updating pet:', err);
+    return res.status(500).json({ error: err.message || 'Failed to update pet' });
+  }
+});
+
 // Start server
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
