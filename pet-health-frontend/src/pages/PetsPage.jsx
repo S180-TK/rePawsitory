@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Search, Calendar, Weight, Heart, AlertCircle, AlertTriangle, Settings } from 'lucide-react';
 import AddPetModal from '../components/AddPetModal';
+import EditPetModal from '../components/EditPetModal';
 import PetRecordsPage from './PetRecordsPage';
 import { useNavigation } from '../hooks/useNavigation';
 
@@ -12,6 +13,7 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet }) => {
   const [showError, setShowError] = useState(false);
   const [selectedPet, setSelectedPet] = useState(null);
   const [viewMode, setViewMode] = useState(null); // 'view' or 'edit'
+  const [editingPet, setEditingPet] = useState(null);
 
   useEffect(() => {
     const checkProfileCompletion = async () => {
@@ -47,6 +49,12 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet }) => {
     }
   };
 
+  const handleUpdatePet = async () => {
+    // Refresh the pets list after updating
+    setEditingPet(null);
+    window.location.reload(); // Simple refresh, or you could fetch the updated pets list
+  };
+
   // Helper function to calculate age from date of birth
   const calculateAge = (dateOfBirth) => {
     if (!dateOfBirth) return 'Unknown';
@@ -74,12 +82,12 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet }) => {
   };
 
   // If viewing a pet's records, show PetRecordsPage
-  if (selectedPet) {
+  if (selectedPet && viewMode === 'view') {
     return (
       <PetRecordsPage 
         pet={selectedPet} 
         onBack={() => setSelectedPet(null)}
-        viewOnly={viewMode === 'view'}
+        viewOnly={true}
         isOwner={true}
       />
     );
@@ -239,10 +247,7 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet }) => {
                   View Details
                 </button>
                 <button 
-                  onClick={() => {
-                    setSelectedPet(pet);
-                    setViewMode('edit');
-                  }}
+                  onClick={() => setEditingPet(pet)}
                   className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm font-semibold"
                 >
                   Edit
@@ -253,6 +258,21 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet }) => {
         ))}
         </div>
       )}
+
+      {/* Add Pet Modal */}
+      <AddPetModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={addPet}
+      />
+
+      {/* Edit Pet Modal */}
+      <EditPetModal
+        isOpen={!!editingPet}
+        onClose={() => setEditingPet(null)}
+        onSave={handleUpdatePet}
+        pet={editingPet}
+      />
     </div>
   );
 };
