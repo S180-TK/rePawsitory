@@ -7,12 +7,33 @@ const PatientsPage = ({ patients, patientsLoading, patientsError }) => {
   const [selectedPet, setSelectedPet] = useState(null);
 
   // Filter patients based on search
-  const filteredPatients = patients.filter(patient => 
-    patient.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patient.species?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patient.breed?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patient.owner?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredPatients = patients.filter(patient => {
+    const searchLower = searchTerm.toLowerCase();
+    
+    // Search in basic fields
+    const matchesBasic = 
+      patient.name?.toLowerCase().includes(searchLower) ||
+      patient.species?.toLowerCase().includes(searchLower) ||
+      patient.breed?.toLowerCase().includes(searchLower) ||
+      patient.owner?.name?.toLowerCase().includes(searchLower);
+    
+    // Search in additional fields
+    const matchesGender = patient.gender?.toLowerCase().includes(searchLower);
+    const matchesColor = patient.color?.toLowerCase().includes(searchLower);
+    
+    // Search in allergies array
+    const matchesAllergies = patient.allergies?.some(allergy => 
+      allergy.toLowerCase().includes(searchLower)
+    );
+    
+    // Search in chronic conditions
+    const matchesConditions = patient.chronicConditions?.some(condition => {
+      const conditionStr = typeof condition === 'string' ? condition : condition.condition;
+      return conditionStr?.toLowerCase().includes(searchLower);
+    });
+    
+    return matchesBasic || matchesGender || matchesColor || matchesAllergies || matchesConditions;
+  });
 
   const calculateAge = (dateOfBirth) => {
     if (!dateOfBirth) return 'Unknown';
@@ -51,11 +72,19 @@ const PatientsPage = ({ patients, patientsLoading, patientsError }) => {
         <Search size={20} className="text-gray-400" />
         <input
           type="text"
-          placeholder="Search patients by name, breed, or owner..."
+          placeholder="Search by name, species, breed, owner, allergies, conditions..."
           className="flex-1 outline-none text-gray-700"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
+        {searchTerm && (
+          <button
+            onClick={() => setSearchTerm('')}
+            className="text-gray-400 hover:text-gray-600 text-sm font-medium"
+          >
+            Clear
+          </button>
+        )}
       </div>
 
       {patientsLoading ? (

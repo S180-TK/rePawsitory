@@ -195,11 +195,6 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet, refetchPets }) => {
               ) : (
                 <span className="text-8xl">🐾</span>
               )}
-              {pet.microchipId && (
-                <div className="absolute top-2 right-2 bg-white/90 rounded-full px-2 py-1 text-xs font-semibold text-blue-700">
-                  Microchipped
-                </div>
-              )}
             </div>
             <div className="p-6">
               <div className="flex items-start justify-between mb-4">
