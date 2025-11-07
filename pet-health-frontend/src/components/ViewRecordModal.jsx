@@ -69,7 +69,11 @@ const ViewRecordModal = ({ isOpen, onClose, record }) => {
                   </svg>
                   <span className="text-sm font-semibold">Veterinarian</span>
                 </div>
-                <p className="text-gray-800 font-medium">{record.veterinarian}</p>
+                <p className="text-gray-800 font-medium">
+                  {typeof record.veterinarian === 'object' 
+                    ? record.veterinarian.name 
+                    : record.veterinarian}
+                </p>
               </div>
             )}
           </div>

@@ -85,20 +85,15 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet }) => {
   if (selectedPet && viewMode === 'view') {
     return (
       <PetRecordsPage 
-        pet={{
-          ...selectedPet,
-          onEdit: () => {
-            setEditingPet(selectedPet);
-            setSelectedPet(null);
-            setViewMode(null);
-          }
-        }} 
-        onBack={() => {
+        pet={selectedPet} 
+        onBack={() => setSelectedPet(null)}
+        viewOnly={false}
+        isOwner={true}
+        onEditPet={() => {
+          setEditingPet(selectedPet);
           setSelectedPet(null);
           setViewMode(null);
         }}
-        viewOnly={false}
-        isOwner={true}
       />
     );
   }

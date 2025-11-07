@@ -3,13 +3,20 @@ import AddRecordModal from '../components/AddRecordModal';
 import ViewRecordModal from '../components/ViewRecordModal';
 import { ArrowLeft, Edit2, Trash2, FileText } from 'lucide-react';
 
-const PetRecordsPage = ({ pet, onBack, viewOnly = false, isOwner = false }) => {
+const PetRecordsPage = ({ pet, onBack, viewOnly = false, isOwner = false, onEditPet = null }) => {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
   const [viewingRecord, setViewingRecord] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  // Get current user ID
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    setCurrentUserId(user.id || user._id);
+  }, []);
 
   const fetchRecords = useCallback(async () => {
     setLoading(true);
@@ -152,18 +159,6 @@ const PetRecordsPage = ({ pet, onBack, viewOnly = false, isOwner = false }) => {
               )}
             </div>
 
-            {/* Owner Badge */}
-            {pet.owner && (
-              <div className="mb-4">
-                <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-lg">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  <span className="font-medium">Owner: {pet.owner.name}</span>
-                </div>
-              </div>
-            )}
-
             {/* Allergies Warning */}
             {pet.allergies && pet.allergies.length > 0 && (
               <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
@@ -219,28 +214,37 @@ const PetRecordsPage = ({ pet, onBack, viewOnly = false, isOwner = false }) => {
         {/* Action Buttons - Bottom */}
         {!viewOnly && (
           <div className="mt-6 pt-6 border-t border-gray-200">
-            <div className="flex gap-3">
-              <button 
-                onClick={() => setIsAddOpen(true)} 
-                className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-md hover:shadow-lg"
-              >
-                + Add Medical Record
-              </button>
-              {isOwner && (
+            {isOwner ? (
+              // Owner sees only Edit Pet Info button
+              onEditPet && (
                 <button 
-                  onClick={() => {
-                    // Trigger edit mode - we'll pass this handler from PetsPage
-                    if (pet.onEdit) {
-                      pet.onEdit();
-                    }
-                  }} 
-                  className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-semibold shadow-md hover:shadow-lg flex items-center gap-2"
+                  onClick={onEditPet} 
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-md hover:shadow-lg"
                 >
                   <Edit2 size={18} />
-                  Edit Pet
+                  Edit Pet Info
                 </button>
-              )}
-            </div>
+              )
+            ) : (
+              // Vet sees both buttons
+              <div className="flex gap-3">
+                {onEditPet && (
+                  <button 
+                    onClick={onEditPet} 
+                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-md hover:shadow-lg"
+                  >
+                    <Edit2 size={18} />
+                    Edit Pet Info
+                  </button>
+                )}
+                <button 
+                  onClick={() => setIsAddOpen(true)} 
+                  className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-md hover:shadow-lg"
+                >
+                  + Add Medical Record
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -273,12 +277,12 @@ const PetRecordsPage = ({ pet, onBack, viewOnly = false, isOwner = false }) => {
             <div className="text-6xl mb-4">📋</div>
             <p className="text-gray-600 text-lg font-medium mb-2">No medical records yet</p>
             <p className="text-gray-500 text-sm mb-4">
-              {viewOnly 
+              {isOwner 
                 ? `${pet.name} doesn't have any medical records yet` 
                 : `Get started by adding ${pet.name}'s first medical record`
               }
             </p>
-            {!viewOnly && (
+            {!isOwner && (
               <button 
                 onClick={() => setIsAddOpen(true)}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
@@ -289,27 +293,28 @@ const PetRecordsPage = ({ pet, onBack, viewOnly = false, isOwner = false }) => {
           </div>
         ) : (
           <div className="space-y-4">
-            {records.map(rec => (
-              <div 
-                key={rec._id} 
-                className={`flex items-center justify-between p-4 border border-gray-200 rounded-lg transition-colors ${
-                  viewOnly ? 'hover:border-blue-300 cursor-pointer' : 'hover:bg-gray-50'
-                }`}
-                onClick={viewOnly ? () => setViewingRecord(rec) : undefined}
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <FileText size={24} className="text-blue-600" />
+            {records.map(rec => {
+              // Check if current user created this record
+              const isCreator = rec.createdBy && currentUserId && 
+                (rec.createdBy._id === currentUserId || rec.createdBy === currentUserId);
+              
+              return (
+                <div 
+                  key={rec._id} 
+                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg transition-colors hover:bg-gray-50"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <FileText size={24} className="text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-800">{rec.title || rec.recordType}</h3>
+                      <p className="text-sm text-gray-600">
+                        <span className="capitalize">{rec.recordType.replace('_', ' ')}</span>
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">{formatDate(rec.date)}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-gray-800">{rec.title || rec.recordType}</h3>
-                    <p className="text-sm text-gray-600">
-                      <span className="capitalize">{rec.recordType.replace('_', ' ')}</span>
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">{formatDate(rec.date)}</p>
-                  </div>
-                </div>
-                {!viewOnly && (
                   <div className="flex gap-2">
                     <button 
                       onClick={() => setViewingRecord(rec)}
@@ -317,22 +322,27 @@ const PetRecordsPage = ({ pet, onBack, viewOnly = false, isOwner = false }) => {
                     >
                       View Details
                     </button>
-                    <button 
-                      onClick={() => setEditingRecord(rec)} 
-                      className="px-4 py-2 rounded-lg bg-green-100 text-green-700 hover:bg-green-200 transition-colors flex items-center gap-2 font-semibold"
-                    >
-                      <Edit2 size={16}/> Edit
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(rec)} 
-                      className="px-4 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-colors flex items-center gap-2 font-semibold"
-                    >
-                      <Trash2 size={16}/> Delete
-                    </button>
+                    {/* Only vets who created the record can edit and delete */}
+                    {!isOwner && isCreator && (
+                      <>
+                        <button 
+                          onClick={() => setEditingRecord(rec)} 
+                          className="px-4 py-2 rounded-lg bg-green-100 text-green-700 hover:bg-green-200 transition-colors flex items-center gap-2 font-semibold"
+                        >
+                          <Edit2 size={16}/> Edit
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(rec)} 
+                          className="px-4 py-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-colors flex items-center gap-2 font-semibold"
+                        >
+                          <Trash2 size={16}/> Delete
+                        </button>
+                      </>
+                    )}
                   </div>
-                )}
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

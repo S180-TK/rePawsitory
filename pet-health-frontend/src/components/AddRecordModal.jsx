@@ -17,18 +17,26 @@ const AddRecordModal = ({ isOpen, onClose, onSave, petId, initialData }) => {
   const [fileInputKey, setFileInputKey] = useState(Date.now());
 
   useEffect(() => {
+    // Get veterinarian name from logged-in user
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const vetName = user.name || '';
+    
     if (initialData) {
       setFormData({
         type: initialData.type || 'checkup',
         title: initialData.title || '',
         date: initialData.date ? new Date(initialData.date).toISOString().slice(0,10) : '',
-        veterinarian: initialData.veterinarian || '',
+        veterinarian: initialData.veterinarian || vetName,
         notes: initialData.notes || '',
         cost: initialData.cost || '',
         attachments: initialData.attachments || []
       });
     } else {
-      setFormData(prev => ({ ...prev, type: 'checkup' }));
+      setFormData(prev => ({ 
+        ...prev, 
+        type: 'checkup',
+        veterinarian: vetName 
+      }));
     }
   }, [initialData, isOpen]);
 
@@ -87,7 +95,7 @@ const AddRecordModal = ({ isOpen, onClose, onSave, petId, initialData }) => {
         type: formData.type,
         title: formData.title,
         date: formData.date,
-        veterinarian: formData.veterinarian,
+        // Don't send veterinarian - backend automatically sets it to the authenticated user
         notes: formData.notes,
         cost: parseFloat(formData.cost) || 0,
         attachments: formData.attachments || []
@@ -160,11 +168,6 @@ const AddRecordModal = ({ isOpen, onClose, onSave, petId, initialData }) => {
             <div>
               <label className="text-sm font-semibold text-gray-700 mb-1 block">Title</label>
               <input name="title" value={formData.title} onChange={handleChange} className="w-full px-3 py-2 border rounded" placeholder="Short title" />
-            </div>
-
-            <div>
-              <label className="text-sm font-semibold text-gray-700 mb-1 block">Veterinarian</label>
-              <input name="veterinarian" value={formData.veterinarian} onChange={handleChange} className="w-full px-3 py-2 border rounded" placeholder="Vet name or clinic" />
             </div>
 
             <div>

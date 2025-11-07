@@ -184,7 +184,11 @@ app.get('/api/pets/:petId/medical-records', auth, async (req, res) => {
 
     if (!allowed) return res.status(403).json({ error: 'Not authorized to view records for this pet' });
 
-    const records = await MedicalRecord.find({ pet: petId }).sort({ date: -1 }).lean();
+    const records = await MedicalRecord.find({ pet: petId })
+      .populate('veterinarian', 'name email')
+      .populate('createdBy', '_id')
+      .sort({ date: -1 })
+      .lean();
     res.json(records);
   } catch (error) {
     console.error('Error fetching medical records:', error);
@@ -228,7 +232,8 @@ app.post('/api/medical-records', auth, async (req, res) => {
     });
 
     const saved = await record.save();
-    res.status(201).json(saved);
+    const populated = await MedicalRecord.findById(saved._id).populate('veterinarian', 'name email').lean();
+    res.status(201).json(populated);
   } catch (error) {
     console.error('Error creating medical record:', error);
     res.status(500).json({ error: 'Failed to create medical record' });
@@ -262,7 +267,8 @@ app.put('/api/medical-records/:id', auth, async (req, res) => {
     existing.updatedAt = new Date();
 
     const saved = await existing.save();
-    res.json(saved);
+    const populated = await MedicalRecord.findById(saved._id).populate('veterinarian', 'name email').lean();
+    res.json(populated);
   } catch (error) {
     console.error('Error updating medical record:', error);
     res.status(500).json({ error: 'Failed to update medical record' });
