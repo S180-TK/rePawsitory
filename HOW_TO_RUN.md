@@ -4,6 +4,8 @@ What you need:
 - Node.js installed (get it from nodejs.org)
 - Internet connection
 
+**Note:** The database is hosted in the cloud (MongoDB Atlas) and is already configured in the project. No local database setup is required!
+
 ---------------------------------------------------------------------------
 
 STEP 1: Extract the project
