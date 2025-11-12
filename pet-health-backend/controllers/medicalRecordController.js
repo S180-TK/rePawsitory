@@ -6,7 +6,7 @@ const PetAccess = require('../models/PetAccess');
 const hasWriteAccessToPet = async (user, petId) => {
   const pet = await Pet.findById(petId).lean();
   if (!pet) return false;
-  if (user.role === 'owner' && pet.owner && pet.owner.toString() === user._id.toString()) return true;
+  if ((user.role === 'owner' || user.role === 'pet_owner') && pet.owner && pet.owner.toString() === user._id.toString()) return true;
   if (user.role === 'veterinarian') {
     const access = await PetAccess.findOne({ veterinarian: user._id, pet: petId, isRevoked: false }).lean();
     if (access && access.permissions && access.permissions.addMedicalRecords) return true;
