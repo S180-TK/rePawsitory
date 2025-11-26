@@ -14,8 +14,22 @@ const petAccessRoutes = require('./routes/petAccess');
 const uploadRoutes = require('./routes/uploads');
 
 // CORS configuration
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://repawsitory.onrender.com', // Update this with your actual Render frontend URL
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(null, true); // For development, allow all origins. Change to false in production.
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
