@@ -16,7 +16,30 @@ const SignupPage = ({ signup, switchToLogin }) => {
   
   const [error, setError] = useState('');
   const [emailError, setEmailError] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState({ valid: false, message: '' });
   const [isLoading, setIsLoading] = useState(false);
+
+  const validatePasswordStrength = (pwd) => {
+    const hasUpperCase = /[A-Z]/.test(pwd);
+    const hasLowerCase = /[a-z]/.test(pwd);
+    const hasNumber = /[0-9]/.test(pwd);
+    const hasMinLength = pwd.length >= 8;
+
+    if (!hasMinLength) {
+      return { valid: false, message: 'Password must be at least 8 characters' };
+    }
+    if (!hasUpperCase) {
+      return { valid: false, message: 'Password must contain at least one uppercase letter' };
+    }
+    if (!hasLowerCase) {
+      return { valid: false, message: 'Password must contain at least one lowercase letter' };
+    }
+    if (!hasNumber) {
+      return { valid: false, message: 'Password must contain at least one number' };
+    }
+
+    return { valid: true, message: 'Strong password' };
+  };
 
   const handleEmailBlur = async () => {
     if (!email.trim()) {
@@ -45,6 +68,7 @@ const SignupPage = ({ signup, switchToLogin }) => {
     } catch (err) {
       // On network error, don't mark as invalid
       setEmailError(false);
+
     }
   };
 
@@ -58,8 +82,10 @@ const SignupPage = ({ signup, switchToLogin }) => {
       return;
     }
     
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters long.');
+    // Validate password strength
+    const strength = validatePasswordStrength(password);
+    if (!strength.valid) {
+      setError(strength.message);
       return;
     }
     
@@ -178,11 +204,28 @@ const SignupPage = ({ signup, switchToLogin }) => {
               <input
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setPasswordStrength(validatePasswordStrength(e.target.value));
+                }}
+                className={`w-full border ${
+                  password && !passwordStrength.valid ? 'border-red-500' : 'border-gray-300'
+                } rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 placeholder="••••••••"
                 required
               />
+              {password && (
+                <p className={`text-xs mt-1 ${
+                  passwordStrength.valid ? 'text-green-600' : 'text-red-500'
+                }`}>
+                  {passwordStrength.message}
+                </p>
+              )}
+              {!password && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Must have: 8+ characters, uppercase, lowercase, and number
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Confirm password</label>

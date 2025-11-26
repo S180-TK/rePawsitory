@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Save, User, Mail, Phone, MapPin, Briefcase } from 'lucide-react';
+import { Save, User, Mail, Phone, MapPin, Briefcase, Lock } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
 const SettingsPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [passwordStrength, setPasswordStrength] = useState({ valid: false, message: '' });
+  const [passwordMessage, setPasswordMessage] = useState({ type: '', text: '' });
   const [userData, setUserData] = useState({
     name: '',
     email: '',
@@ -23,6 +31,28 @@ const SettingsPage = () => {
     specialization: ''
   });
   const [userRole, setUserRole] = useState('');
+
+  const validatePasswordStrength = (pwd) => {
+    const hasUpperCase = /[A-Z]/.test(pwd);
+    const hasLowerCase = /[a-z]/.test(pwd);
+    const hasNumber = /[0-9]/.test(pwd);
+    const hasMinLength = pwd.length >= 8;
+
+    if (!hasMinLength) {
+      return { valid: false, message: 'Password must be at least 8 characters' };
+    }
+    if (!hasUpperCase) {
+      return { valid: false, message: 'Password must contain at least one uppercase letter' };
+    }
+    if (!hasLowerCase) {
+      return { valid: false, message: 'Password must contain at least one lowercase letter' };
+    }
+    if (!hasNumber) {
+      return { valid: false, message: 'Password must contain at least one number' };
+    }
+
+    return { valid: true, message: 'Strong password' };
+  };
 
   // Load user data from localStorage on mount
   useEffect(() => {
@@ -124,6 +154,55 @@ const SettingsPage = () => {
     }
   };
 
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    setPasswordMessage({ type: '', text: '' });
+
+    // Validate password strength
+    const strength = validatePasswordStrength(passwordData.newPassword);
+    if (!strength.valid) {
+      setPasswordMessage({ type: 'error', text: strength.message });
+      return;
+    }
+
+    // Validation
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordMessage({ type: 'error', text: 'New passwords do not match' });
+      return;
+    }
+
+    setIsChangingPassword(true);
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/api/change-password`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setPasswordMessage({ type: 'success', text: 'Password changed successfully!' });
+        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      } else {
+        setPasswordMessage({ type: 'error', text: data.error || 'Failed to change password' });
+      }
+    } catch (error) {
+      console.error('Error changing password:', error);
+      setPasswordMessage({ type: 'error', text: 'Failed to change password. Please try again.' });
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -172,7 +251,7 @@ const SettingsPage = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+              <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                 <Mail size={16} />
                 Email <span className="text-red-500">*</span>
               </label>
@@ -189,7 +268,7 @@ const SettingsPage = () => {
               <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+              <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                 <Phone size={16} />
                 Phone
               </label>
@@ -334,6 +413,89 @@ const SettingsPage = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Password Change Section */}
+        <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <Lock size={24} className="text-blue-600" />
+            Change Password
+          </h2>
+          
+          {passwordMessage.text && (
+            <div className={`p-4 rounded-lg mb-4 ${
+              passwordMessage.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 
+              'bg-red-50 text-red-700 border border-red-200'
+            }`}>
+              {passwordMessage.text}
+            </div>
+          )}
+
+          <form onSubmit={handlePasswordChange} className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Current Password <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="password"
+                value={passwordData.currentPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter current password"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                New Password <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="password"
+                value={passwordData.newPassword}
+                onChange={(e) => {
+                  setPasswordData(prev => ({ ...prev, newPassword: e.target.value }));
+                  setPasswordStrength(validatePasswordStrength(e.target.value));
+                }}
+                className={`w-full px-4 py-2 border ${
+                  passwordData.newPassword && !passwordStrength.valid ? 'border-red-500' : 'border-gray-300'
+                } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                placeholder="Enter new password"
+                required
+              />
+              {passwordData.newPassword && (
+                <p className={`text-xs mt-1 ${
+                  passwordStrength.valid ? 'text-green-600' : 'text-red-500'
+                }`}>
+                  {passwordStrength.message}
+                </p>
+              )}
+              {!passwordData.newPassword && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Must have: 8+ characters, uppercase, lowercase, and number
+                </p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Confirm New Password <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="password"
+                value={passwordData.confirmPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Confirm new password"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={isChangingPassword}
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isChangingPassword ? 'Changing Password...' : 'Change Password'}
+            </button>
+          </form>
         </div>
 
         {/* Action Buttons */}
