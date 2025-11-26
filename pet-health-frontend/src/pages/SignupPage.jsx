@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE_URL } from '../config';
 
 const SignupPage = ({ signup, switchToLogin }) => {
   const [role, setRole] = useState('pet_owner');
@@ -61,7 +62,7 @@ const SignupPage = ({ signup, switchToLogin }) => {
         registrationData.specialization = specialization.trim();
       }
 
-      const response = await fetch('http://localhost:5001/api/register', {
+      const response = await fetch(`${API_BASE_URL}/api/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

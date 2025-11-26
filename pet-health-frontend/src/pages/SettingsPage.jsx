@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Save, User, Mail, Phone, MapPin, Briefcase } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 const SettingsPage = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -36,7 +37,7 @@ const SettingsPage = () => {
   const fetchUserProfile = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5001/api/profile', {
+      const response = await fetch(`${API_BASE_URL}/api/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -93,7 +94,7 @@ const SettingsPage = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5001/api/profile/update', {
+      const response = await fetch(`${API_BASE_URL}/api/profile/update`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -16,7 +16,7 @@ const uploadRoutes = require('./routes/uploads');
 // CORS configuration
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://repawsitory.onrender.com', // Update this with your actual Render frontend URL
+  'https://repawsitory.vercel.app', // Update this with your actual Vercel URL
   process.env.FRONTEND_URL
 ].filter(Boolean);
 

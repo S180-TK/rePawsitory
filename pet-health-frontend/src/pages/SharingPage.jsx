@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Search, ChevronLeft, ChevronRight, MapPin, Award, Building2, Check, X } from 'lucide-react';
 import { usePets } from '../hooks/usePets';
+import { API_BASE_URL } from '../config';
 
 const SharingPage = () => {
   const { pets } = usePets();
@@ -24,7 +25,7 @@ const SharingPage = () => {
       try {
         setLoading(true);
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5001/api/vets', {
+        const response = await fetch(`${API_BASE_URL}/api/vets`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -50,7 +51,7 @@ const SharingPage = () => {
     const fetchCurrentAccess = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5001/api/pet-access/my-grants', {
+        const response = await fetch(`${API_BASE_URL}/api/pet-access/my-grants`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -124,7 +125,7 @@ const SharingPage = () => {
       
       // Grant access for each selected pet
       const promises = selectedPets.map(petId =>
-        fetch('http://localhost:5001/api/pet-access/grant', {
+        fetch(`${API_BASE_URL}/api/pet-access/grant`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -152,7 +153,7 @@ const SharingPage = () => {
       setSelectedPets([]);
 
       // Refresh current access list
-      const response = await fetch('http://localhost:5001/api/pet-access/my-grants', {
+      const response = await fetch(`${API_BASE_URL}/api/pet-access/my-grants`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -175,7 +176,7 @@ const SharingPage = () => {
   const handleRevokeAccess = async (accessId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5001/api/pet-access/revoke/${accessId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/pet-access/revoke/${accessId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -185,7 +186,7 @@ const SharingPage = () => {
       if (response.ok) {
         setMessage({ type: 'success', text: 'Access revoked successfully' });
         // Refresh current access list
-        const refreshResponse = await fetch('http://localhost:5001/api/pet-access/my-grants', {
+        const refreshResponse = await fetch(`${API_BASE_URL}/api/pet-access/my-grants`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

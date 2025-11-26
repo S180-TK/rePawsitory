@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, User } from 'lucide-react';
 import PetRecordsPage from './PetRecordsPage';
+import { API_BASE_URL } from '../config';
 
 const PatientsPage = ({ patients, patientsLoading, patientsError }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -113,7 +114,7 @@ const PatientsPage = ({ patients, patientsLoading, patientsError }) => {
               <div className="bg-gradient-to-br from-green-400 to-green-600 h-32 flex items-center justify-center overflow-hidden">
                 {patient.photoUrl ? (
                   <img 
-                    src={`http://localhost:5001${patient.photoUrl}`}
+                    src={`${API_BASE_URL}${patient.photoUrl}`}
                     alt={patient.name} 
                     className="w-full h-full object-cover"
                   />

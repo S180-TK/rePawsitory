@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, MapPin, Award, Building2 } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 const VetsPage = () => {
   const [vets, setVets] = useState([]);
@@ -11,7 +12,7 @@ const VetsPage = () => {
     const fetchVets = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5001/api/vets', {
+        const response = await fetch(`${API_BASE_URL}/api/vets`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'

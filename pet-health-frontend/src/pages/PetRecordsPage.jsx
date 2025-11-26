@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import AddRecordModal from '../components/AddRecordModal';
 import ViewRecordModal from '../components/ViewRecordModal';
 import { ArrowLeft, Edit2, Trash2, FileText } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 const PetRecordsPage = ({ pet, onBack, viewOnly = false, isOwner = false, onEditPet = null }) => {
   const [records, setRecords] = useState([]);
@@ -31,7 +32,7 @@ const PetRecordsPage = ({ pet, onBack, viewOnly = false, isOwner = false, onEdit
       }
       
       console.log('Fetching records for pet ID:', petId);
-      const res = await fetch(`http://localhost:5001/api/pets/${petId}/medical-records`, {
+      const res = await fetch(`${API_BASE_URL}/api/pets/${petId}/medical-records`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
@@ -68,7 +69,7 @@ const PetRecordsPage = ({ pet, onBack, viewOnly = false, isOwner = false, onEdit
     if (!window.confirm('Delete this record? This cannot be undone.')) return;
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5001/api/medical-records/${rec._id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/medical-records/${rec._id}`, {
         method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to delete');
@@ -191,7 +192,7 @@ const PetRecordsPage = ({ pet, onBack, viewOnly = false, isOwner = false, onEdit
             <div className="bg-gradient-to-br from-green-400 to-green-600 rounded-lg overflow-hidden h-64 flex items-center justify-center">
               {pet.photoUrl ? (
                 <img 
-                  src={`http://localhost:5001${pet.photoUrl}`}
+                  src={`${API_BASE_URL}${pet.photoUrl}`}
                   alt={pet.name} 
                   className="w-full h-full object-cover"
                 />
@@ -210,7 +211,7 @@ const PetRecordsPage = ({ pet, onBack, viewOnly = false, isOwner = false, onEdit
                   if (window.confirm(`Are you sure you want to remove ${pet.name}? This action cannot be undone.`)) {
                     try {
                       const token = localStorage.getItem('token');
-                      const res = await fetch(`http://localhost:5001/pets/${pet._id}`, {
+                      const res = await fetch(`${API_BASE_URL}/pets/${pet._id}`, {
                         method: 'DELETE',
                         headers: { 'Authorization': `Bearer ${token}` }
                       });

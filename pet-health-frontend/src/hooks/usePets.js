@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { API_BASE_URL } from '../config';
 
 export const usePets = () => {
   const [pets, setPets] = useState([]);
@@ -25,7 +26,7 @@ export const usePets = () => {
           return;
         }
 
-        const response = await fetch('http://localhost:5001/pets', {
+        const response = await fetch(`${API_BASE_URL}/pets`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -59,7 +60,7 @@ export const usePets = () => {
   const addPet = async (petData = { name: 'New Pet', species: 'Dog', breed: 'Unknown', age: 0, photo: '🐾' }) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5001/pets', {
+      const response = await fetch(`${API_BASE_URL}/pets`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

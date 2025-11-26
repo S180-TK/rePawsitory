@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Upload } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 const AddRecordModal = ({ isOpen, onClose, onSave, petId, initialData }) => {
   const [formData, setFormData] = useState({
@@ -55,7 +56,7 @@ const AddRecordModal = ({ isOpen, onClose, onSave, petId, initialData }) => {
       const fd = new FormData();
       files.forEach(f => fd.append('files', f));
 
-      const res = await fetch('http://localhost:5001/api/upload/medical-record', {
+      const res = await fetch(`${API_BASE_URL}/api/upload/medical-record`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -100,7 +101,7 @@ const AddRecordModal = ({ isOpen, onClose, onSave, petId, initialData }) => {
 
       // If editing existing record
       if (initialData && initialData._id) {
-        const res = await fetch(`http://localhost:5001/api/medical-records/${initialData._id}`, {
+        const res = await fetch(`${API_BASE_URL}/api/medical-records/${initialData._id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -112,7 +113,7 @@ const AddRecordModal = ({ isOpen, onClose, onSave, petId, initialData }) => {
         const updated = await res.json();
         onSave(updated);
       } else {
-        const res = await fetch('http://localhost:5001/api/medical-records', {
+        const res = await fetch(`${API_BASE_URL}/api/medical-records`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -186,7 +187,7 @@ const AddRecordModal = ({ isOpen, onClose, onSave, petId, initialData }) => {
                   <div key={idx} className="flex items-center justify-between text-sm bg-gray-50 px-3 py-2 rounded">
                     <div className="truncate">{att.filename || att.fileUrl}</div>
                     <div className="flex gap-2">
-                      <a href={`http://localhost:5001${att.fileUrl}`} target="_blank" rel="noreferrer" className="text-blue-600">View</a>
+                      <a href={`${API_BASE_URL}${att.fileUrl}`} target="_blank" rel="noreferrer" className="text-blue-600">View</a>
                       <button type="button" onClick={() => handleRemoveAttachment(idx)} className="text-red-600">Remove</button>
                     </div>
                   </div>

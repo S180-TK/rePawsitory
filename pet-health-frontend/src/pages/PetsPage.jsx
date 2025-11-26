@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Search, Calendar, Weight, Heart, AlertCircle, AlertTriangle, Settings } from 'lucide-react';
 import AddPetModal from '../components/AddPetModal';
+import { API_BASE_URL } from '../config';
 import EditPetModal from '../components/EditPetModal';
 import PetRecordsPage from './PetRecordsPage';
 import { useNavigation } from '../hooks/useNavigation';
@@ -19,7 +20,7 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet, refetchPets }) => {
     const checkProfileCompletion = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5001/api/profile', {
+        const response = await fetch(`${API_BASE_URL}/api/profile`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -188,7 +189,7 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet, refetchPets }) => {
             <div className="bg-gradient-to-br from-blue-400 to-blue-600 aspect-square flex items-center justify-center overflow-hidden relative">
               {pet.photoUrl ? (
                 <img 
-                  src={`http://localhost:5001${pet.photoUrl}`}
+                  src={`${API_BASE_URL}${pet.photoUrl}`}
                   alt={pet.name} 
                   className="w-full h-full object-cover"
                 />

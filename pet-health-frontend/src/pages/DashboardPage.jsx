@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, FileText, Users, Bell, AlertTriangle, Settings } from 'lucide-react';
 import ViewRecordModal from '../components/ViewRecordModal';
+import { API_BASE_URL } from '../config';
 
 const DashboardPage = ({ userRole, pets, recentRecords, petsLoading, petsError, setCurrentPage }) => {
   const [profileComplete, setProfileComplete] = useState(true); // Default to true to avoid showing warning before check
@@ -18,7 +19,7 @@ const DashboardPage = ({ userRole, pets, recentRecords, petsLoading, petsError, 
     const checkProfileCompletion = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5001/api/profile', {
+        const response = await fetch(`${API_BASE_URL}/api/profile`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -57,7 +58,7 @@ const DashboardPage = ({ userRole, pets, recentRecords, petsLoading, petsError, 
       try {
         const token = localStorage.getItem('token');
         const recordsPromises = pets.map(pet =>
-          fetch(`http://localhost:5001/api/pets/${pet._id}/medical-records`, {
+          fetch(`${API_BASE_URL}/api/pets/${pet._id}/medical-records`, {
             headers: { 'Authorization': `Bearer ${token}` }
           }).then(res => res.ok ? res.json() : [])
             .then(records => records.map(r => ({ ...r, petName: pet.name, petId: pet._id })))
@@ -97,7 +98,7 @@ const DashboardPage = ({ userRole, pets, recentRecords, petsLoading, petsError, 
         console.log('User ID:', userId);
         
         // Fetch all patients
-        const patientsResponse = await fetch('http://localhost:5001/api/vet/patients', {
+        const patientsResponse = await fetch(`${API_BASE_URL}/api/vet/patients`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -106,7 +107,7 @@ const DashboardPage = ({ userRole, pets, recentRecords, petsLoading, petsError, 
           
           // Fetch medical records for all patients
           const recordsPromises = patients.map(pet =>
-            fetch(`http://localhost:5001/api/pets/${pet._id}/medical-records`, {
+            fetch(`${API_BASE_URL}/api/pets/${pet._id}/medical-records`, {
               headers: { 'Authorization': `Bearer ${token}` }
             }).then(res => res.ok ? res.json() : [])
               .then(records => records.map(r => ({ ...r, petName: pet.name, petId: pet._id })))
@@ -160,7 +161,7 @@ const DashboardPage = ({ userRole, pets, recentRecords, petsLoading, petsError, 
       try {
         const token = localStorage.getItem('token');
         // Fetch all access grants made by the current user
-        const response = await fetch('http://localhost:5001/api/pet-access/my-grants', {
+        const response = await fetch(`${API_BASE_URL}/api/pet-access/my-grants`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -193,7 +194,7 @@ const DashboardPage = ({ userRole, pets, recentRecords, petsLoading, petsError, 
       setLoadingPatients(true);
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5001/api/vet/patients', {
+        const response = await fetch(`${API_BASE_URL}/api/vet/patients`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         

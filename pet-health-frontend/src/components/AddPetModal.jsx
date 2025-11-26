@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Upload, XCircle } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 const AddPetModal = ({ isOpen, onClose, onSave }) => {
   const [formData, setFormData] = useState({
@@ -66,7 +67,7 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
         formData.append('image', file);
 
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5001/api/upload/pet-image', {
+        const response = await fetch(`${API_BASE_URL}/api/upload/pet-image`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`

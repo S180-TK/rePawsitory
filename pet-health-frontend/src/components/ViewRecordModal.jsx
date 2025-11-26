@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, Download, Calendar, FileText } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 const getFileTypeDescription = (filename) => {
   if (!filename) return 'File';
@@ -20,7 +21,7 @@ const ViewRecordModal = ({ isOpen, onClose, record }) => {
   const handleDownload = (attachment) => {
     // Create a temporary link and trigger download
     const link = document.createElement('a');
-    link.href = `http://localhost:5001${attachment.fileUrl}`;
+    link.href = `${API_BASE_URL}${attachment.fileUrl}`;
     link.download = attachment.filename || attachment.fileUrl.split('/').pop();
     document.body.appendChild(link);
     link.click();

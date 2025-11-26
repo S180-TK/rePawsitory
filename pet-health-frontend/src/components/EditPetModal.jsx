@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Upload, XCircle } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 const EditPetModal = ({ isOpen, onClose, onSave, pet }) => {
   const [formData, setFormData] = useState({
@@ -48,7 +49,7 @@ const EditPetModal = ({ isOpen, onClose, onSave, pet }) => {
       });
       
       if (pet.photoUrl) {
-        setImagePreview(`http://localhost:5001${pet.photoUrl}`);
+        setImagePreview(`${API_BASE_URL}${pet.photoUrl}`);
       }
     }
   }, [isOpen, pet]);
@@ -83,7 +84,7 @@ const EditPetModal = ({ isOpen, onClose, onSave, pet }) => {
         formDataUpload.append('image', file);
 
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5001/api/upload/pet-image', {
+        const response = await fetch(`${API_BASE_URL}/api/upload/pet-image`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -98,7 +99,7 @@ const EditPetModal = ({ isOpen, onClose, onSave, pet }) => {
           ...prev,
           photoUrl: data.imageUrl
         }));
-        setImagePreview(`http://localhost:5001${data.imageUrl}`);
+        setImagePreview(`${API_BASE_URL}${data.imageUrl}`);
         setErrors(prev => ({ ...prev, image: '' }));
       } catch (error) {
         console.error('Error uploading image:', error);
@@ -159,7 +160,7 @@ const EditPetModal = ({ isOpen, onClose, onSave, pet }) => {
 
       // Update the pet via API
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5001/pets/${pet._id}`, {
+      const response = await fetch(`${API_BASE_URL}/pets/${pet._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FileText } from 'lucide-react';
 import ViewRecordModal from '../components/ViewRecordModal';
+import { API_BASE_URL } from '../config';
 
 const RecordsPage = ({ pets }) => {
   const [allRecords, setAllRecords] = useState([]);
@@ -19,7 +20,7 @@ const RecordsPage = ({ pets }) => {
       try {
         const token = localStorage.getItem('token');
         const recordsPromises = pets.map(pet =>
-          fetch(`http://localhost:5001/api/pets/${pet._id}/medical-records`, {
+          fetch(`${API_BASE_URL}/api/pets/${pet._id}/medical-records`, {
             headers: { 'Authorization': `Bearer ${token}` }
           }).then(res => res.ok ? res.json() : [])
             .then(records => records.map(r => ({ ...r, petName: pet.name, petId: pet._id })))

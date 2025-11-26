@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { API_BASE_URL } from '../config';
 
 export const usePatients = () => {
   const [patients, setPatients] = useState([]);
@@ -25,7 +26,7 @@ export const usePatients = () => {
           return;
         }
 
-        const response = await fetch('http://localhost:5001/api/vet/patients', {
+        const response = await fetch(`${API_BASE_URL}/api/vet/patients`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
