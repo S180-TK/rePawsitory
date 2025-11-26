@@ -41,7 +41,7 @@ exports.updateProfile = async (req, res) => {
     // Add vet-specific fields if user is a veterinarian
     if (req.user.role === 'veterinarian') {
       if (clinic) updateData.clinic = clinic;
-      if (license) updateData.license = license;
+      // License number cannot be modified after registration
       if (specialization) updateData.specialization = specialization;
     }
 

@@ -15,11 +15,43 @@ const SignupPage = ({ signup, switchToLogin }) => {
   const [specialization, setSpecialization] = useState('');
   
   const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleEmailBlur = async () => {
+    if (!email.trim()) {
+      setEmailError(false);
+      return;
+    }
+
+    try {
+      // Check if email already exists by attempting registration check
+      const response = await fetch(`${API_BASE_URL}/api/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: email.trim(), password: 'dummy', name: 'dummy', role: 'pet_owner' }),
+      });
+
+      const data = await response.json();
+
+      // If error message indicates user already exists
+      if (data.error && (data.error.toLowerCase().includes('already exists') || data.error.toLowerCase().includes('already registered') || data.error.toLowerCase().includes('email is already'))) {
+        setEmailError(true);
+      } else {
+        setEmailError(false);
+      }
+    } catch (err) {
+      // On network error, don't mark as invalid
+      setEmailError(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setEmailError(false);
     
     if (!name.trim() || !email.trim() || !password.trim()) {
       setError('Please fill out all required fields.');
@@ -115,11 +147,18 @@ const SignupPage = ({ signup, switchToLogin }) => {
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailError(false); // Clear error when user types
+              }}
+              onBlur={handleEmailBlur}
+              className={`w-full border ${emailError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 transition-colors`}
               placeholder="jane@example.com"
               required
             />
+            {emailError && (
+              <p className="text-red-500 text-xs mt-1">This email is already registered</p>
+            )}
           </div>
 
           <div>

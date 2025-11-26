@@ -12,6 +12,7 @@ const petRoutes = require('./routes/pets');
 const medicalRecordRoutes = require('./routes/medicalRecords');
 const petAccessRoutes = require('./routes/petAccess');
 const uploadRoutes = require('./routes/uploads');
+const adminRoutes = require('./routes/admin');
 
 // CORS configuration
 const allowedOrigins = [
@@ -48,6 +49,7 @@ app.use('/pets', petRoutes);                    // Pet CRUD routes
 app.use('/api', medicalRecordRoutes);           // Medical record routes
 app.use('/api', petAccessRoutes);               // Pet access management routes (/api/vet/patients, /api/pet-access/*)
 app.use('/api/upload', uploadRoutes);           // File upload routes
+app.use('/api', adminRoutes);                   // Admin routes
 
 // Connect to MongoDB
 connectToDatabase();

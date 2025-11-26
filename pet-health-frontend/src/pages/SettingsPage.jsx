@@ -234,22 +234,6 @@ const SettingsPage = () => {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  License Number <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="license"
-                  value={userData.license}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                  className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    !isEditing ? 'bg-gray-50 cursor-not-allowed' : ''
-                  }`}
-                  placeholder="Enter license number"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Specialization <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -315,7 +299,7 @@ const SettingsPage = () => {
                   className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                     !isEditing ? 'bg-gray-50 cursor-not-allowed' : ''
                   }`}
-                  placeholder="State"
+                  placeholder="Province"
                 />
               </div>
             </div>

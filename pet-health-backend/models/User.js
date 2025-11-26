@@ -37,6 +37,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: function() { return this.role === 'veterinarian'; }
   },
+  // Veterinarian approval status
+  isApproved: {
+    type: Boolean,
+    default: function() { return this.role !== 'veterinarian'; } // Auto-approve non-vets
+  },
   // Contact information
   phone: {
     type: String,

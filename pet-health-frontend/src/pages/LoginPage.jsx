@@ -6,11 +6,44 @@ const LoginPage = ({ login, switchToSignup }) => {
   const [password, setPassword] = useState('');
 
   const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleEmailBlur = async () => {
+    if (!email.trim()) {
+      setEmailError(false);
+      return;
+    }
+
+    try {
+      // Check if email exists by attempting a lightweight validation
+      const response = await fetch(`${API_BASE_URL}/api/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password: 'dummy' }), // Send dummy password for validation
+      });
+
+      const data = await response.json();
+
+      // Only mark as invalid if the error specifically says "user not found" or "no user"
+      // Don't mark as invalid for "invalid credentials" or "invalid password" (means user exists)
+      if (data.error && (data.error.toLowerCase().includes('user not found') || data.error.toLowerCase().includes('no user'))) {
+        setEmailError(true);
+      } else {
+        setEmailError(false);
+      }
+    } catch (err) {
+      // On network error, don't mark as invalid
+      setEmailError(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setEmailError(false);
     setIsLoading(true);
 
     try {
@@ -58,11 +91,18 @@ const LoginPage = ({ login, switchToSignup }) => {
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailError(false); // Clear error when user types
+              }}
+              onBlur={handleEmailBlur}
+              className={`w-full border ${emailError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 transition-colors`}
               placeholder="you@example.com"
               required
             />
+            {emailError && (
+              <p className="text-red-500 text-xs mt-1">This email does not exist</p>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>

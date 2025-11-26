@@ -5,6 +5,7 @@ import PatientsPage from '../pages/PatientsPage';
 import RecordsPage from '../pages/RecordsPage';
 import SharingPage from '../pages/SharingPage';
 import SettingsPage from '../pages/SettingsPage';
+import AdminPage from '../pages/AdminPage';
 
 const PageRouter = ({ 
   currentPage, 
@@ -35,6 +36,8 @@ const PageRouter = ({
       return <SharingPage />;
     case 'settings':
       return <SettingsPage />;
+    case 'admin':
+      return <AdminPage />;
     default:
       return <DashboardPage userRole={userRole} pets={pets} recentRecords={recentRecords} petsLoading={petsLoading} petsError={petsError} addPet={addPet} setCurrentPage={setCurrentPage} />;
   }

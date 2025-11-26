@@ -22,25 +22,30 @@ export const useNavigation = () => {
     { id: 'settings', icon: Settings, label: 'Settings' }
   ];
 
-  const navItems = userRole === 'owner' ? ownerNavItems : vetNavItems;
+  const adminNavItems = [
+    { id: 'admin', icon: Users, label: 'Admin Panel' },
+    { id: 'settings', icon: Settings, label: 'Settings' }
+  ];
+
+  const navItems = userRole === 'owner' ? ownerNavItems : userRole === 'admin' ? adminNavItems : vetNavItems;
 
   const login = (role) => {
     console.log('Login called with role:', role); // Add debug logging
-    if (role !== 'owner' && role !== 'vet') {
+    if (role !== 'owner' && role !== 'vet' && role !== 'admin') {
       console.error('Invalid role:', role);
       return;
     }
     setUserRole(role);
     setIsAuthenticated(true);
-    setCurrentPage('dashboard');
+    setCurrentPage(role === 'admin' ? 'admin' : 'dashboard');
   };
 
   const signup = (role) => {
     // In a real app, call backend to create account then set auth
-    if (role !== 'owner' && role !== 'vet') return;
+    if (role !== 'owner' && role !== 'vet' && role !== 'admin') return;
     setUserRole(role);
     setIsAuthenticated(true);
-    setCurrentPage('dashboard');
+    setCurrentPage(role === 'admin' ? 'admin' : 'dashboard');
   };
 
   const logout = () => {

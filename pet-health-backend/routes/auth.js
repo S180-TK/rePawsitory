@@ -98,6 +98,11 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    // Check if veterinarian is approved
+    if (user.role === 'veterinarian' && !user.isApproved) {
+      return res.status(403).json({ error: 'Your account is pending approval by an administrator. Please wait for approval before logging in.' });
+    }
+
     // Create JWT token
     const token = jwt.sign(
       { 

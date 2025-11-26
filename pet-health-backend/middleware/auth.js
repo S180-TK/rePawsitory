@@ -44,4 +44,4 @@ const checkRole = (roles) => {
     };
 };
 
-module.exports = { auth, checkRole };module.exports = { auth, checkRole };
+module.exports = { auth, checkRole };
