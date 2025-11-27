@@ -1,5 +1,6 @@
 const Pet = require('../models/Pet');
 const MedicalRecord = require('../models/MedicalRecord');
+const PetAccess = require('../models/PetAccess');
 
 // Get all pets for the authenticated user
 exports.getPets = async (req, res) => {
@@ -140,6 +141,9 @@ exports.deletePet = async (req, res) => {
     if (pet.owner.toString() !== req.user._id.toString()) {
       return res.status(403).json({ error: 'Not authorized to delete this pet' });
     }
+
+    // Delete all pet access records associated with this pet
+    await PetAccess.deleteMany({ pet: petId });
 
     // Delete all medical records associated with this pet
     await MedicalRecord.deleteMany({ pet: petId });

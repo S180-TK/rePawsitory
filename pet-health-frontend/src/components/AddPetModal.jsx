@@ -61,7 +61,11 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
         return;
       }
 
-      // Upload the image to the server
+      // Create preview URL immediately for instant display
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+
+      // Upload the image to the server in the background
       try {
         const formData = new FormData();
         formData.append('image', file);
@@ -87,10 +91,6 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
           photoUrl: data.imageUrl
         }));
         
-        // Create preview URL for display
-        const previewUrl = URL.createObjectURL(file);
-        setImagePreview(previewUrl);
-        
         // Clear error if exists
         if (errors.image) {
           setErrors(prev => ({
@@ -100,6 +100,8 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
         }
       } catch (error) {
         console.error('Upload error:', error);
+        // Remove preview if upload fails
+        setImagePreview(null);
         setErrors(prev => ({
           ...prev,
           image: 'Failed to upload image. Please try again.'

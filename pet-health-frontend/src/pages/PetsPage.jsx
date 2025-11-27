@@ -97,6 +97,7 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet, refetchPets }) => {
           setSelectedPet(null);
           setViewMode(null);
         }}
+        refetchPets={refetchPets}
       />
     );
   }

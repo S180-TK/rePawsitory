@@ -4,7 +4,7 @@ import ViewRecordModal from '../components/ViewRecordModal';
 import { ArrowLeft, Edit2, Trash2, FileText } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
-const PetRecordsPage = ({ pet, onBack, viewOnly = false, isOwner = false, onEditPet = null }) => {
+const PetRecordsPage = ({ pet, onBack, viewOnly = false, isOwner = false, onEditPet = null, refetchPets = null }) => {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -223,6 +223,12 @@ const PetRecordsPage = ({ pet, onBack, viewOnly = false, isOwner = false, onEdit
                       }
                       
                       alert(`${pet.name} has been removed successfully.`);
+                      
+                      // Refetch pets to update the list
+                      if (refetchPets) {
+                        refetchPets();
+                      }
+                      
                       onBack(); // Go back to My Pets page
                     } catch (err) {
                       console.error('Error deleting pet:', err);
