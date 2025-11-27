@@ -49,7 +49,6 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
           ...prev,
           image: 'Please select an image file'
         }));
-        e.target.value = ''; // Reset input
         return;
       }
 
@@ -59,15 +58,10 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
           ...prev,
           image: 'Image size must be less than 5MB'
         }));
-        e.target.value = ''; // Reset input
         return;
       }
 
-      // Create preview URL immediately for instant display
-      const previewUrl = URL.createObjectURL(file);
-      setImagePreview(previewUrl);
-
-      // Upload the image to the server in the background
+      // Upload the image to the server
       try {
         const formData = new FormData();
         formData.append('image', file);
@@ -93,6 +87,10 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
           photoUrl: data.imageUrl
         }));
         
+        // Create preview URL for display
+        const previewUrl = URL.createObjectURL(file);
+        setImagePreview(previewUrl);
+        
         // Clear error if exists
         if (errors.image) {
           setErrors(prev => ({
@@ -102,15 +100,10 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
         }
       } catch (error) {
         console.error('Upload error:', error);
-        // Remove preview if upload fails
-        setImagePreview(null);
         setErrors(prev => ({
           ...prev,
           image: 'Failed to upload image. Please try again.'
         }));
-      } finally {
-        // Reset file input so same file can be selected again
-        e.target.value = '';
       }
     }
   };
