@@ -1,14 +1,15 @@
 const mongoose = require('mongoose');
 
+// Use environment variable for MongoDB connection
+const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/repawsitory';
 
-const MONGO_URI = 'mongodb+srv://mattfuentes_db_user:RVOCW6b97JJt5ipw@repawsitory0.fbqvhjj.mongodb.net/?appName=rePawsitory0'
 function connectToDatabase() {
   return mongoose
     .connect(MONGO_URI, {
       serverSelectionTimeoutMS: 5000,
     })
     .then(() => {
-      console.log(`✅ Connected to MongoDB at ${MONGO_URI}`);
+      console.log(`✅ Connected to MongoDB`);
     })
     .catch((err) => {
       console.error('❌ MongoDB connection error:', err.message);
