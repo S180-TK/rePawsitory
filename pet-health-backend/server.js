@@ -17,7 +17,8 @@ const adminRoutes = require('./routes/admin');
 // CORS configuration
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://repawsitory.vercel.app', // Update this with your actual Vercel URL
+  'https://repawsitory-l57dzzmyf-s180-tks-projects.vercel.app', // Your actual frontend URL
+  'https://repawsitory.vercel.app', // Alternative domain
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
