@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 
-const MONGO_URI = 'mongodb+srv://rovickdompor_db_user:A559PoD0zfz6N2rr@cluster0.mizhw2z.mongodb.net/?appName=Cluster0'
+const MONGO_URI = 'mongodb+srv://mattfuentes_db_user:RVOCW6b97JJt5ipw@repawsitory0.fbqvhjj.mongodb.net/?appName=rePawsitory0'
 function connectToDatabase() {
   return mongoose
     .connect(MONGO_URI, {
