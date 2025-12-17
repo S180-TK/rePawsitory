@@ -7,10 +7,11 @@ import { usePets } from '../hooks/usePets';
 import { usePatients } from '../hooks/usePatients';
 import LoginPage from './LoginPage';
 import SignupPage from './SignupPage';
+import LandingPage from './LandingPage';
 
 const PetHealthApp = () => {
   const navigation = useNavigation();
-  const [authView, setAuthView] = useState('login'); // 'login' | 'signup'
+  const [authView, setAuthView] = useState('landing'); // 'landing' | 'login' | 'signup'
   const { recentRecords } = useMockData();
   
   // Only fetch pets and patients when authenticated
@@ -20,7 +21,9 @@ const PetHealthApp = () => {
   return (
     <>
       {!navigation.isAuthenticated ? (
-        authView === 'login' ? (
+        authView === 'landing' ? (
+          <LandingPage onLogin={() => setAuthView('login')} />
+        ) : authView === 'login' ? (
           <LoginPage 
             login={(role) => {
               navigation.login(role);
