@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // Use environment variable for MongoDB connection
-const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/repawsitory';
+const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/rePawsitory';
 
 function connectToDatabase() {
   return mongoose
