@@ -58,15 +58,9 @@ const PatientsPage = ({ patients, patientsLoading, patientsError }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800">My Patients</h1>
-          <p className="text-gray-600 mt-1">Pets under your care</p>
-        </div>
-        <div className="text-right">
-          <div className="text-2xl font-bold text-blue-600">{patients.length}</div>
-          <div className="text-sm text-gray-500">Total Patients</div>
-        </div>
+      <div>
+        <h1 className="text-3xl font-bold text-gray-800">My Patients</h1>
+        <p className="text-gray-600 mt-1">Pets under your care</p>
       </div>
 
       <div className="flex items-center gap-4 bg-white p-4 rounded-lg shadow-md">
