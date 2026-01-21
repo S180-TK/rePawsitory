@@ -259,7 +259,7 @@ const DashboardPage = ({ userRole, pets, recentRecords, petsLoading, petsError, 
       )}
 
       {/* Stats Cards */}
-      <div className={`grid grid-cols-1 ${userRole === 'vet' ? 'md:grid-cols-2' : 'md:grid-cols-3'} gap-6`}>
+      <div className={`grid grid-cols-1 ${userRole === 'vet' ? 'md:grid-cols-2' : 'md:grid-cols-2'} gap-6`}>
         {userRole === 'owner' && (
           <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg">
             <div className="flex items-center justify-between">
@@ -283,23 +283,23 @@ const DashboardPage = ({ userRole, pets, recentRecords, petsLoading, petsError, 
           </div>
         )}
 
-        <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-xl shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-green-100 text-sm">
-                {userRole === 'owner' ? 'Medical Records' : 'Total Records Created'}
-              </p>
-              <p className="text-3xl font-bold mt-1">
-                {loadingActivity ? (
-                  <span className="text-lg">Loading...</span>
-                ) : (
-                  totalRecordsCount
-                )}
-              </p>
+        {userRole === 'vet' && (
+          <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-xl shadow-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-green-100 text-sm">Total Records Created</p>
+                <p className="text-3xl font-bold mt-1">
+                  {loadingActivity ? (
+                    <span className="text-lg">Loading...</span>
+                  ) : (
+                    totalRecordsCount
+                  )}
+                </p>
+              </div>
+              <FileText size={40} className="opacity-80" />
             </div>
-            <FileText size={40} className="opacity-80" />
           </div>
-        </div>
+        )}
 
         <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-xl shadow-lg">
           <div className="flex items-center justify-between">
