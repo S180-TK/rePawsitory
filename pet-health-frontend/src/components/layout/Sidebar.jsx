@@ -36,7 +36,9 @@ const Sidebar = ({
       {sidebarOpen && (
         <div className="p-4 border-b border-blue-700 text-blue-100">
           <div className="text-xs uppercase opacity-70 mb-1">Signed in as</div>
-          <div className="font-medium">{userRole === 'owner' ? 'Pet Owner' : 'Veterinarian'}</div>
+          <div className="font-medium">
+            {userRole === 'owner' ? 'Pet Owner' : userRole === 'admin' ? 'Admin' : 'Veterinarian'}
+          </div>
         </div>
       )}
 
