@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Search, Calendar, Weight, Heart, AlertCircle, AlertTriangle, Settings } from 'lucide-react';
+import { PlusCircle, Search, AlertCircle, AlertTriangle, Settings } from 'lucide-react';
 import AddPetModal from '../components/AddPetModal';
 import { API_BASE_URL } from '../config';
 import EditPetModal from '../components/EditPetModal';
@@ -55,32 +55,6 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet, refetchPets }) => {
     setEditingPet(null);
     if (refetchPets) {
       refetchPets(); // Refresh pets data without reloading the page
-    }
-  };
-
-  // Helper function to calculate age from date of birth
-  const calculateAge = (dateOfBirth) => {
-    if (!dateOfBirth) return 'Unknown';
-    const today = new Date();
-    const birthDate = new Date(dateOfBirth);
-    const ageInYears = today.getFullYear() - birthDate.getFullYear();
-    const ageInMonths = today.getMonth() - birthDate.getMonth();
-    
-    if (ageInYears > 0) {
-      return `${ageInYears} year${ageInYears > 1 ? 's' : ''}`;
-    } else if (ageInMonths >= 0) {
-      return `${ageInMonths} month${ageInMonths > 1 ? 's' : ''}`;
-    } else {
-      return `${12 + ageInMonths} month${(12 + ageInMonths) > 1 ? 's' : ''}`;
-    }
-  };
-
-  // Helper function to get gender icon/text
-  const getGenderDisplay = (gender) => {
-    switch(gender) {
-      case 'male': return '♂️ Male';
-      case 'female': return '♀️ Female';
-      default: return '? Unknown';
     }
   };
 
