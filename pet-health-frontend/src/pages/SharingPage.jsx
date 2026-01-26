@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Search, ChevronLeft, ChevronRight, MapPin, Award, Building2, Check, X } from 'lucide-react';
+import { Users, Search, ChevronLeft, ChevronRight, MapPin, Award, Building2 } from 'lucide-react';
 import { usePets } from '../hooks/usePets';
 import { API_BASE_URL } from '../config';
 

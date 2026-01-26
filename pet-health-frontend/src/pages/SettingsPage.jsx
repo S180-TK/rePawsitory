@@ -134,7 +134,7 @@ const SettingsPage = () => {
       });
 
       if (response.ok) {
-        const data = await response.json();
+        await response.json();
         setMessage({ type: 'success', text: 'Profile updated successfully!' });
         setIsEditing(false);
         
