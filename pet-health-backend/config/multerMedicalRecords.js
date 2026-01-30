@@ -3,9 +3,14 @@ const path = require('path');
 const fs = require('fs');
 
 // Ensure upload directory exists
-const uploadDir = path.join(__dirname, '../uploads/medical-records');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+// Use /tmp for serverless environments (Vercel has read-only filesystem)
+const uploadDir = process.env.VERCEL ? '/tmp/uploads/medical-records' : path.join(__dirname, '../uploads/medical-records');
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (err) {
+  console.warn('Could not create upload directory:', err.message);
 }
 
 // Configure storage
