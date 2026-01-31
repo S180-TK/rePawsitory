@@ -1,5 +1,5 @@
 // server/server.js
-// Deployment trigger: 2026-01-31
+require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 const app = express();
@@ -40,63 +40,26 @@ app.get('/api', (req, res) => {
   });
 });
 
-// Login route - all imports done inside to avoid startup crashes
-app.post('/api/login', async (req, res) => {
-  try {
-    // Import everything inside the handler
-    const jwt = require('jsonwebtoken');
-    require('./db');
-    const { User } = require('./models');
-    
-    const { email, password } = req.body;
+// Import DB connection
+require('./db');
 
-    // Find user by email
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
+// Import routes
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+const petRoutes = require('./routes/pets');
+const medicalRecordRoutes = require('./routes/medicalRecords');
+const petAccessRoutes = require('./routes/petAccess');
+const uploadRoutes = require('./routes/uploads');
+const adminRoutes = require('./routes/admin');
 
-    // Compare password
-    const isValidPassword = await user.comparePassword(password);
-    if (!isValidPassword) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    // Check if veterinarian is approved
-    if (user.role === 'veterinarian' && !user.isApproved) {
-      return res.status(403).json({ error: 'Your account is pending approval by an administrator.' });
-    }
-
-    // Create JWT token
-    const token = jwt.sign(
-      { 
-        userId: user._id, 
-        email: user.email,
-        role: user.role 
-      }, 
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '24h' }
-    );
-
-    // Map backend roles to frontend roles
-    const frontendRole = user.role === 'pet_owner' ? 'owner' : 
-                        user.role === 'veterinarian' ? 'vet' : user.role;
-
-    res.json({
-      token,
-      user: {
-        id: user._id,
-        email: user.email,
-        name: user.name,
-        role: frontendRole
-      }
-    });
-
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ error: 'Internal server error: ' + error.message });
-  }
-});
+// Mount routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/pets', petRoutes);
+app.use('/api/medical-records', medicalRecordRoutes);
+app.use('/api/pet-access', petAccessRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Export for Vercel (serverless)
 module.exports = app;
