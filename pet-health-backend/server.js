@@ -1,13 +1,11 @@
 // server/server.js
-require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
-const path = require("path");
 const app = express();
 
 // CORS configuration - Allow all origins in production (can be restricted later)
 app.use(cors({
-  origin: true, // Allow all origins
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -18,9 +16,6 @@ app.options('*', cors());
 
 // Body parser middleware
 app.use(express.json());
-
-// Serve static files from uploads directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Health check endpoint (must be before route imports)
 app.get('/', (req, res) => {
