@@ -53,6 +53,7 @@ try {
 }
 
 // Import routes with error handling
+let routesLoaded = false;
 try {
   const authRoutes = require('./routes/auth');
   const userRoutes = require('./routes/users');
@@ -62,19 +63,33 @@ try {
   const uploadRoutes = require('./routes/uploads');
   const adminRoutes = require('./routes/admin');
 
-  // Mount routes
-  app.use('/api', authRoutes);                    // Authentication routes (login, signup)
-  app.use('/api', userRoutes);                    // User profile routes
-  app.use('/pets', petRoutes);                    // Pet CRUD routes
-  app.use('/api', medicalRecordRoutes);           // Medical record routes
-  app.use('/api', petAccessRoutes);               // Pet access management routes (/api/vet/patients, /api/pet-access/*)
-  app.use('/api/upload', uploadRoutes);           // File upload routes
-  app.use('/api', adminRoutes);                   // Admin routes
-  
-  console.log('All routes loaded successfully');
+  // Mount routes only if loaded successfully
+  if (authRoutes && userRoutes && petRoutes && medicalRecordRoutes && 
+      petAccessRoutes && uploadRoutes && adminRoutes) {
+    app.use('/api', authRoutes);                    // Authentication routes (login, signup)
+    app.use('/api', userRoutes);                    // User profile routes
+    app.use('/pets', petRoutes);                    // Pet CRUD routes
+    app.use('/api', medicalRecordRoutes);           // Medical record routes
+    app.use('/api', petAccessRoutes);               // Pet access management routes (/api/vet/patients, /api/pet-access/*)
+    app.use('/api/upload', uploadRoutes);           // File upload routes
+    app.use('/api', adminRoutes);                   // Admin routes
+    
+    routesLoaded = true;
+    console.log('All routes loaded successfully');
+  }
 } catch (error) {
   console.error('Error loading routes:', error);
+  console.error('Stack:', error.stack);
 }
+
+// Add route status endpoint
+app.get('/api/status', (req, res) => {
+  res.json({
+    status: 'ok',
+    routesLoaded,
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Don't wait for DB connection - it will connect automatically
 // The db.js file handles connection on import
