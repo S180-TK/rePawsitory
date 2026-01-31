@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Home, Users, FileText, Share2, Settings, Calendar, Heart } from 'lucide-react';
+import { Home, Users, FileText, Share2, Settings, Heart } from 'lucide-react';
 
 export const useNavigation = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
