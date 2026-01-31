@@ -44,6 +44,23 @@ app.use(express.json());
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Health check endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    message: 'Pet Health API is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get('/api', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    message: 'Pet Health API',
+    endpoints: ['/api/auth', '/api/users', '/pets', '/api/medical-records', '/api/pet-access', '/api/upload', '/api/admin']
+  });
+});
+
 // Mount routes
 app.use('/api', authRoutes);                    // Authentication routes (login, signup)
 app.use('/api', userRoutes);                    // User profile routes
