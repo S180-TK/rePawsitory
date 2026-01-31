@@ -1,6 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "cd pet-health-frontend && npm install && npm run build",
+  "installCommand": "cd pet-health-frontend && npm install",
+  "buildCommand": "cd pet-health-frontend && npm run build",
   "outputDirectory": "pet-health-frontend/build",
   "rewrites": [
     {
