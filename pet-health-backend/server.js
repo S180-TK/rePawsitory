@@ -15,24 +15,9 @@ const petAccessRoutes = require('./routes/petAccess');
 const uploadRoutes = require('./routes/uploads');
 const adminRoutes = require('./routes/admin');
 
-// CORS configuration
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://repawsitory-l57dzzmyf-s180-tks-projects.vercel.app', // Your actual frontend URL
-  'https://repawsitory.vercel.app', // Alternative domain
-  process.env.FRONTEND_URL
-].filter(Boolean);
-
+// CORS configuration - Allow all origins in production (can be restricted later)
 app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(null, true); // For development, allow all origins. Change to false in production.
-    }
-  },
+  origin: true, // Allow all origins
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
