@@ -50,7 +50,8 @@ const bcrypt = require('bcrypt');
 
 app.post('/api/login', async (req, res) => {
   try {
-    const mongoose = require('mongoose');
+    // Import DB connection and models inside the handler
+    require('./db');
     const { User } = require('./models');
     
     const { email, password } = req.body;
@@ -99,15 +100,9 @@ app.post('/api/login', async (req, res) => {
 
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error: ' + error.message });
   }
 });
-
-// Import and connect DB
-const { connectToDatabase } = require('./db');
-
-// Don't wait for DB connection - it will connect automatically
-// The db.js file handles connection on import
 
 // Export for Vercel (serverless)
 module.exports = app;
