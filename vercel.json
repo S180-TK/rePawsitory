@@ -16,35 +16,22 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "pet-health-backend/server.js"
+      "dest": "/pet-health-backend/server.js"
     },
     {
       "src": "/pets/(.*)",
-      "dest": "pet-health-backend/server.js"
+      "dest": "/pet-health-backend/server.js"
     },
     {
       "src": "/uploads/(.*)",
-      "dest": "pet-health-backend/server.js"
+      "dest": "/pet-health-backend/server.js"
     },
     {
-      "src": "/static/(.*)",
-      "dest": "pet-health-frontend/build/static/$1"
-    },
-    {
-      "src": "/manifest.json",
-      "dest": "pet-health-frontend/build/manifest.json"
-    },
-    {
-      "src": "/robots.txt",
-      "dest": "pet-health-frontend/build/robots.txt"
-    },
-    {
-      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))",
-      "dest": "pet-health-frontend/build/$1"
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "pet-health-frontend/build/index.html"
+      "dest": "/pet-health-frontend/$1"
     }
   ]
 }
