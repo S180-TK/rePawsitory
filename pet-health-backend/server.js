@@ -55,8 +55,8 @@ app.use('/api', petAccessRoutes);               // Pet access management routes 
 app.use('/api/upload', uploadRoutes);           // File upload routes
 app.use('/api', adminRoutes);                   // Admin routes
 
-// Connect to MongoDB
-connectToDatabase();
+// Don't wait for DB connection - it will connect automatically
+// The db.js file handles connection on import
 
 // Export for Vercel (serverless)
 module.exports = app;

@@ -13,8 +13,13 @@ function connectToDatabase() {
     })
     .catch((err) => {
       console.error('❌ MongoDB connection error:', err.message);
+      // Don't throw - let the app start even if DB connection fails initially
+      // Mongoose will retry automatically
     });
 }
+
+// Connect immediately
+connectToDatabase();
 
 module.exports = { connectToDatabase };
 
