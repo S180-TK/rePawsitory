@@ -44,52 +44,67 @@ app.get('/api', (req, res) => {
   });
 });
 
-// Import and connect DB
-try {
-  const { connectToDatabase } = require('./db');
-  console.log('DB module loaded');
-} catch (error) {
-  console.error('Error loading DB module:', error);
-}
+// Temporary: Add login route directly here to test
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
-// Import routes with error handling
-let routesLoaded = false;
-try {
-  const authRoutes = require('./routes/auth');
-  const userRoutes = require('./routes/users');
-  const petRoutes = require('./routes/pets');
-  const medicalRecordRoutes = require('./routes/medicalRecords');
-  const petAccessRoutes = require('./routes/petAccess');
-  const uploadRoutes = require('./routes/uploads');
-  const adminRoutes = require('./routes/admin');
-
-  // Mount routes only if loaded successfully
-  if (authRoutes && userRoutes && petRoutes && medicalRecordRoutes && 
-      petAccessRoutes && uploadRoutes && adminRoutes) {
-    app.use('/api', authRoutes);                    // Authentication routes (login, signup)
-    app.use('/api', userRoutes);                    // User profile routes
-    app.use('/pets', petRoutes);                    // Pet CRUD routes
-    app.use('/api', medicalRecordRoutes);           // Medical record routes
-    app.use('/api', petAccessRoutes);               // Pet access management routes (/api/vet/patients, /api/pet-access/*)
-    app.use('/api/upload', uploadRoutes);           // File upload routes
-    app.use('/api', adminRoutes);                   // Admin routes
+app.post('/api/login', async (req, res) => {
+  try {
+    const mongoose = require('mongoose');
+    const { User } = require('./models');
     
-    routesLoaded = true;
-    console.log('All routes loaded successfully');
-  }
-} catch (error) {
-  console.error('Error loading routes:', error);
-  console.error('Stack:', error.stack);
-}
+    const { email, password } = req.body;
 
-// Add route status endpoint
-app.get('/api/status', (req, res) => {
-  res.json({
-    status: 'ok',
-    routesLoaded,
-    timestamp: new Date().toISOString()
-  });
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Compare password
+    const isValidPassword = await user.comparePassword(password);
+    if (!isValidPassword) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Check if veterinarian is approved
+    if (user.role === 'veterinarian' && !user.isApproved) {
+      return res.status(403).json({ error: 'Your account is pending approval by an administrator.' });
+    }
+
+    // Create JWT token
+    const token = jwt.sign(
+      { 
+        userId: user._id, 
+        email: user.email,
+        role: user.role 
+      }, 
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '24h' }
+    );
+
+    // Map backend roles to frontend roles
+    const frontendRole = user.role === 'pet_owner' ? 'owner' : 
+                        user.role === 'veterinarian' ? 'vet' : user.role;
+
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        role: frontendRole
+      }
+    });
+
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
+
+// Import and connect DB
+const { connectToDatabase } = require('./db');
 
 // Don't wait for DB connection - it will connect automatically
 // The db.js file handles connection on import
