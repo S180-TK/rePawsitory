@@ -1,37 +1,11 @@
 {
   "version": 2,
-  "builds": [
+  "buildCommand": "cd pet-health-frontend && npm install && npm run build",
+  "outputDirectory": "pet-health-frontend/build",
+  "rewrites": [
     {
-      "src": "pet-health-backend/server.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "pet-health-frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/pet-health-backend/server.js"
-    },
-    {
-      "src": "/pets/(.*)",
-      "dest": "/pet-health-backend/server.js"
-    },
-    {
-      "src": "/uploads/(.*)",
-      "dest": "/pet-health-backend/server.js"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/pet-health-frontend/$1"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
