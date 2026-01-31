@@ -44,13 +44,11 @@ app.get('/api', (req, res) => {
   });
 });
 
-// Temporary: Add login route directly here to test
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-
+// Login route - all imports done inside to avoid startup crashes
 app.post('/api/login', async (req, res) => {
   try {
-    // Import DB connection and models inside the handler
+    // Import everything inside the handler
+    const jwt = require('jsonwebtoken');
     require('./db');
     const { User } = require('./models');
     
