@@ -2,8 +2,13 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
+// Use /tmp directory for Vercel serverless environment
+// In production (Vercel), files are stored temporarily and should be uploaded to cloud storage
+const uploadDir = process.env.NODE_ENV === 'production' 
+  ? '/tmp/uploads/medical-records'
+  : path.join(__dirname, '../uploads/medical-records');
+
 // Ensure upload directory exists
-const uploadDir = path.join(__dirname, '../uploads/medical-records');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }

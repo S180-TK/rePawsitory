@@ -1,4 +1,13 @@
 // server/server.js
+// Load environment variables in development
+if (process.env.NODE_ENV !== 'production') {
+  try {
+    require('dotenv').config();
+  } catch (err) {
+    // dotenv not installed, using environment variables from system
+  }
+}
+
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
@@ -40,7 +49,11 @@ app.use(cors({
 app.use(express.json());
 
 // Serve static files from uploads directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// In production (Vercel), use /tmp; in development, use local uploads folder
+const uploadsPath = process.env.NODE_ENV === 'production' 
+  ? '/tmp/uploads'
+  : path.join(__dirname, 'uploads');
+app.use('/uploads', express.static(uploadsPath));
 
 // Mount routes
 app.use('/api', authRoutes);                    // Authentication routes (login, signup)
@@ -50,6 +63,46 @@ app.use('/api', medicalRecordRoutes);           // Medical record routes
 app.use('/api', petAccessRoutes);               // Pet access management routes (/api/vet/patients, /api/pet-access/*)
 app.use('/api/upload', uploadRoutes);           // File upload routes
 app.use('/api', adminRoutes);                   // Admin routes
+
+// Root route handler
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    message: 'rePawsitory API Server',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      auth: '/api/login, /api/signup',
+      users: '/api/users/*',
+      pets: '/pets/*',
+      medical: '/api/medical-records/*',
+      access: '/api/pet-access/*',
+      upload: '/api/upload/*'
+    }
+  });
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+});
+
+// 404 handler for undefined routes
+app.use((req, res) => {
+  res.status(404).json({ 
+    error: 'Not Found', 
+    message: `Route ${req.method} ${req.path} not found`,
+    availableRoutes: ['/api', '/pets', '/health']
+  });
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(err.status || 500).json({
+    error: err.message || 'Internal Server Error',
+    ...(process.env.NODE_ENV !== 'production' && { stack: err.stack })
+  });
+});
 
 // Connect to MongoDB
 connectToDatabase();
