@@ -3,11 +3,7 @@ const CACHE_NAME = 'repawsitory-v1';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/static/css/main.css',
-  '/static/js/main.js',
-  '/manifest.json',
-  '/logo192.png',
-  '/logo512.png'
+  '/manifest.json'
 ];
 
 // Install event - cache static assets
@@ -17,7 +13,10 @@ self.addEventListener('install', event => {
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('[Service Worker] Caching app shell');
-        return cache.addAll(urlsToCache);
+        return cache.addAll(urlsToCache).catch(err => {
+          console.warn('[Service Worker] Cache addAll failed:', err);
+          // Continue even if some caches fail
+        });
       })
       .then(() => self.skipWaiting())
   );
