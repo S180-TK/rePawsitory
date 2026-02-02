@@ -14,9 +14,12 @@ const PetHealthApp = () => {
   const [authView, setAuthView] = useState('landing'); // 'landing' | 'login' | 'signup'
   const { recentRecords } = useMockData();
   
-  // Only fetch pets and patients when authenticated
-  const { pets, loading, error, addPet, refetch: refetchPets } = usePets();
-  const { patients, loading: patientsLoading, error: patientsError, refetch: refetchPatients } = usePatients();
+  // Only fetch pets and patients when authenticated to avoid 401 errors
+  const petsData = navigation.isAuthenticated ? usePets() : { pets: [], loading: false, error: null, addPet: () => {}, refetch: () => {} };
+  const patientsData = navigation.isAuthenticated ? usePatients() : { patients: [], loading: false, error: null, refetch: () => {} };
+  
+  const { pets, loading, error, addPet, refetch: refetchPets } = petsData;
+  const { patients, loading: patientsLoading, error: patientsError, refetch: refetchPatients } = patientsData;
 
   return (
     <>
