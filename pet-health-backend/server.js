@@ -26,7 +26,8 @@ const adminRoutes = require('./routes/admin');
 // CORS configuration
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://repawsitory.vercel.app', // Update this with your actual Vercel URL
+  'https://repawsitory.vercel.app',
+  'https://pet-health-frontend-9wu3m0db8-s180-tks-projects.vercel.app',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
@@ -34,10 +35,12 @@ app.use(cors({
   origin: function(origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    
+    // Allow all Vercel deployments
+    if (origin.includes('.vercel.app') || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      callback(null, true); // For development, allow all origins. Change to false in production.
+      callback(null, true); // For development, allow all origins
     }
   },
   credentials: true,
