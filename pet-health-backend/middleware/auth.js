@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
 
-const JWT_SECRET = 'your-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-CHANGE-THIS-IN-PRODUCTION';
 
 // Middleware to verify JWT token
 const auth = async (req, res, next) => {
