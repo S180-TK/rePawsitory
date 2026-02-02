@@ -16,6 +16,9 @@ async function connectToDatabase() {
   }
 
   try {
+    console.log('🔄 Attempting MongoDB connection...');
+    console.log('📍 Using URI:', MONGO_URI ? `${MONGO_URI.split('@')[0].split('//')[1].split(':')[0]}@${MONGO_URI.split('@')[1]}` : 'NOT SET');
+    
     const connection = await mongoose.connect(MONGO_URI, {
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
