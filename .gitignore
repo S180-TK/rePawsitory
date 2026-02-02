@@ -1,0 +1,11 @@
+
+# Documentation files (local only)
+VERCEL_*.md
+PASSWORD_*.md
+DEPLOYMENT_*.md
+SECURITY_*.md
+CREDENTIALS_*.md
+ROOT_CAUSE_*.md
+BEFORE_AFTER_*.md
+AI_USE_*.md
+ARCHITECTURE_*.md
