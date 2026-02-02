@@ -34,6 +34,14 @@ export const usePatients = () => {
         });
 
         if (!response.ok) {
+          // Don't log 401 errors when not authenticated - these are expected
+          if (response.status === 401) {
+            if (isMounted) {
+              setPatients([]);
+              setLoading(false);
+            }
+            return;
+          }
           throw new Error(`Request failed with status ${response.status}`);
         }
 
@@ -43,9 +51,12 @@ export const usePatients = () => {
         }
       } catch (err) {
         if (isMounted) {
+          // Only log unexpected errors (not 401 auth errors)
+          if (!err.message?.includes('401')) {
+            console.error('Error fetching patients:', err);
+          }
           setError(err);
           setPatients([]); // Clear patients on error
-          console.error('Error fetching patients:', err);
         }
       } finally {
         if (isMounted) {
