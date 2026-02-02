@@ -6,6 +6,7 @@ import RecordsPage from '../pages/RecordsPage';
 import SharingPage from '../pages/SharingPage';
 import SettingsPage from '../pages/SettingsPage';
 import AdminPage from '../pages/AdminPage';
+import VetsPage from '../pages/VetsPage';
 
 const PageRouter = ({ 
   currentPage, 
@@ -32,6 +33,8 @@ const PageRouter = ({
       return <PatientsPage patients={patients} patientsLoading={patientsLoading} patientsError={patientsError} />;
     case 'records':
       return <RecordsPage pets={pets} />;
+    case 'vets':
+      return <VetsPage />;
     case 'sharing':
       return <SharingPage />;
     case 'settings':
