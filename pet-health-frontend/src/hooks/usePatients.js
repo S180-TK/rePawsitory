@@ -34,14 +34,6 @@ export const usePatients = () => {
         });
 
         if (!response.ok) {
-          // Don't log 401 errors when not authenticated - these are expected
-          if (response.status === 401) {
-            if (isMounted) {
-              setPatients([]);
-              setLoading(false);
-            }
-            return;
-          }
           throw new Error(`Request failed with status ${response.status}`);
         }
 

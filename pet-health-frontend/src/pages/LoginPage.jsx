@@ -61,14 +61,17 @@ const LoginPage = ({ login, switchToSignup }) => {
         throw new Error(data.error || 'Login failed');
       }
 
-      // Store the token in localStorage
+      // Store the token in localStorage FIRST (synchronously)
+      console.log('🔐 Saving token to localStorage:', data.token);
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
+      console.log('✅ Token saved. Verifying:', localStorage.getItem('token'));
 
-      console.log('Login successful:', data.user); // Add this for debugging
+      console.log('Login successful:', data.user);
 
       // Call the login function with user data
       if (data.user && data.user.role) {
+        console.log('🚀 Calling navigation.login with role:', data.user.role);
         login(data.user.role);
       } else {
         throw new Error('Invalid user data received');

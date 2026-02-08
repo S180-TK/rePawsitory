@@ -3,7 +3,8 @@ import { Heart, FileText, Users, Bell, AlertTriangle, Settings } from 'lucide-re
 import ViewRecordModal from '../components/ViewRecordModal';
 import { API_BASE_URL } from '../config';
 
-const DashboardPage = ({ userRole, pets, recentRecords, petsLoading, petsError, setCurrentPage }) => {
+  const DashboardPage = ({ userRole, pets, recentRecords, petsLoading, petsError, setCurrentPage }) => {
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
   const [profileComplete, setProfileComplete] = useState(true); // Default to true to avoid showing warning before check
   const [checkingProfile, setCheckingProfile] = useState(true);
   const [recentActivity, setRecentActivity] = useState([]);
@@ -91,8 +92,7 @@ const DashboardPage = ({ userRole, pets, recentRecords, petsLoading, petsError, 
       setLoadingActivity(true);
       try {
         const token = localStorage.getItem('token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const userId = user._id || user.id;
+        const userId = user?.id || user?._id;
         
         console.log('Logged in user:', user);
         console.log('User ID:', userId);

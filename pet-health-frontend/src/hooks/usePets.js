@@ -17,8 +17,11 @@ export const usePets = () => {
         const token = localStorage.getItem('token');
         const user = localStorage.getItem('user');
         
+        console.log('🐾 usePets: Reading token from localStorage:', token ? token.substring(0, 20) + '...' : 'NULL');
+        
         // Don't fetch if no token or user
         if (!token || !user) {
+          console.log('❌ usePets: No token or user, skipping fetch');
           if (isMounted) {
             setPets([]);
             setLoading(false);
@@ -26,32 +29,23 @@ export const usePets = () => {
           return;
         }
 
+        console.log('📡 usePets: Fetching pets with token...');
         const response = await fetch(`${API_BASE_URL}/pets`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
         if (!response.ok) {
-          // Don't log 401 errors when not authenticated - these are expected
-          if (response.status === 401) {
-            if (isMounted) {
-              setPets([]);
-              setLoading(false);
-            }
-            return;
-          }
+          console.error('❌ usePets: Fetch failed with status:', response.status);
           throw new Error(`Request failed with status ${response.status}`);
         }
         const data = await response.json();
+        console.log('✅ usePets: Successfully fetched', data.length, 'pets');
         if (isMounted) {
           setPets(Array.isArray(data) ? data : []);
         }
       } catch (err) {
         if (isMounted) {
-          // Only log unexpected errors (not 401 auth errors)
-          if (!err.message?.includes('401')) {
-            console.error('Error fetching pets:', err);
-          }
           setError(err);
           setPets([]); // Clear pets on error
         }
@@ -95,6 +89,7 @@ export const usePets = () => {
   };
 
   const refetch = () => {
+    console.log('🔄 usePets: refetch() called, incrementing trigger');
     setRefetchTrigger(prev => prev + 1);
   };
 

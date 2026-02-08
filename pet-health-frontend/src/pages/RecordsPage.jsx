@@ -16,9 +16,9 @@ const RecordsPage = ({ pets }) => {
     const fetchAllRecords = async () => {
       if (!pets || pets.length === 0) return;
       
+      const token = localStorage.getItem('token');
       setLoading(true);
       try {
-        const token = localStorage.getItem('token');
         const recordsPromises = pets.map(pet =>
           fetch(`${API_BASE_URL}/api/pets/${pet._id}/medical-records`, {
             headers: { 'Authorization': `Bearer ${token}` }

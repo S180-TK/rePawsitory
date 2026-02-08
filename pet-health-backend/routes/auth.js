@@ -4,8 +4,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { User } = require('../models');
 
-// Secret key for JWT - uses environment variable or fallback (change in production!)
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-CHANGE-THIS-IN-PRODUCTION';
+// Secret key for JWT - in production, use an environment variable
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // Register endpoint
 router.post('/register', async (req, res) => {

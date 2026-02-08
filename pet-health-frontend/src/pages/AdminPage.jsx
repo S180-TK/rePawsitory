@@ -16,8 +16,8 @@ const AdminPage = () => {
 
   const fetchVeterinarians = async () => {
     try {
-      setLoading(true);
       const token = localStorage.getItem('token');
+      setLoading(true);
       const response = await fetch(`${API_BASE_URL}/api/admin/veterinarians`, {
         headers: {
           'Authorization': `Bearer ${token}`

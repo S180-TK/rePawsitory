@@ -20,12 +20,14 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet, refetchPets }) => {
     const checkProfileCompletion = async () => {
       try {
         const token = localStorage.getItem('token');
+        console.log('🏠 PetsPage: Reading token from localStorage:', token ? token.substring(0, 20) + '...' : 'NULL');
         const response = await fetch(`${API_BASE_URL}/api/profile`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
 
+        console.log('🏠 PetsPage: Profile response status:', response.status);
         if (response.ok) {
           const data = await response.json();
           setProfileComplete(data.user.profileCompleted || false);

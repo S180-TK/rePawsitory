@@ -9,3 +9,5 @@ ROOT_CAUSE_*.md
 BEFORE_AFTER_*.md
 AI_USE_*.md
 ARCHITECTURE_*.md
+.vercel
+.env*.local

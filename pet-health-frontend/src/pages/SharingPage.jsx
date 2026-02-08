@@ -122,7 +122,6 @@ const SharingPage = () => {
     setGrantingAccess(true);
     try {
       const token = localStorage.getItem('token');
-      
       // Grant access for each selected pet
       const promises = selectedPets.map(petId =>
         fetch(`${API_BASE_URL}/api/pet-access/grant`, {
