@@ -9,7 +9,6 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const express = require("express");
-const cors = require("cors");
 const path = require("path");
 const app = express();
 const { connectToDatabase } = require('./db');
@@ -26,27 +25,32 @@ const adminRoutes = require('./routes/admin');
 // CORS configuration
 const allowedOrigins = [
   'http://localhost:3000',
+  'http://localhost:3001',
   'https://repawsitory.vercel.app',
   'https://pet-health-frontend-9wu3m0db8-s180-tks-projects.vercel.app',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
-app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    // Allow all Vercel deployments
-    if (origin.includes('.vercel.app') || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(null, true); // For development, allow all origins
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// Simple CORS middleware that works better with Vercel serverless
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  
+  // Allow all Vercel deployments, localhost, and configured origins
+  if (!origin || origin.includes('.vercel.app') || allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin || '*');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.header('Access-Control-Max-Age', '3600');
+  }
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  
+  next();
+});
 
 // Body parser middleware
 app.use(express.json());

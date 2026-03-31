@@ -10,4 +10,6 @@ BEFORE_AFTER_*.md
 AI_USE_*.md
 ARCHITECTURE_*.md
 .vercel
+.env
 .env*.local
+.env.production
