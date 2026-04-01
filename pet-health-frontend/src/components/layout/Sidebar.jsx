@@ -11,19 +11,22 @@ const Sidebar = ({
   logout
 }) => {
   return (
-    <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-gradient-to-b from-blue-800 to-blue-900 text-white transition-all duration-300 flex flex-col`}>
-      {/* Logo */}
-      <div className="p-4 flex items-center justify-between border-b border-blue-700">
-        {sidebarOpen && (
-          <div className="flex items-center gap-2">
-            <img 
-              src="/logo.png" 
-              alt="rePawsitory Logo" 
-              className="h-12 w-12 object-contain"
-            />
-            <h1 className="text-xl font-bold">rePawsitory</h1>
-          </div>
-        )}
+     <div 
+    className={`${sidebarOpen ? 'w-64' : 'w-20'} text-white transition-all duration-300 flex flex-col`}
+    style={{ background: 'linear-gradient(to bottom, #1e40af, #1e3a8a)' }}
+    >      
+    {/* Logo */}
+    <div className="p-4 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
+      {sidebarOpen && (
+        <div className="flex items-center gap-2">
+          <img 
+            src="/logo.png" 
+            alt="rePawsitory Logo" 
+            className="h-12 w-12 object-contain"
+          />
+          <h1 className="text-xl font-bold">rePawsitory</h1>
+        </div>
+      )}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className="p-2 hover:bg-blue-700 rounded-lg transition-colors"
