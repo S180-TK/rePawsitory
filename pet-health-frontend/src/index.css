@@ -1,3 +1,32 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .brand-title {
+    display: inline-block;
+    color: #0b5fa5;
+  }
+
+  .dashboard-stat-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .dashboard-stat-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .dashboard-stat-card-blue {
+    background: #0b5fa5;
+  }
+
+  .dashboard-stat-card-green {
+    background: #0f8f64;
+  }
+
+  .dashboard-stat-card-purple {
+    background: #6d4ab7;
+  }
+}

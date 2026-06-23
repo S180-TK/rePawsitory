@@ -261,7 +261,7 @@ import { API_BASE_URL } from '../config';
       {/* Stats Cards */}
       <div className={`grid grid-cols-1 ${userRole === 'vet' ? 'md:grid-cols-2' : 'md:grid-cols-3'} gap-6`}>
         {userRole === 'owner' && (
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg">
+          <div className="dashboard-stat-card dashboard-stat-card-blue text-white p-6 rounded-xl shadow-lg">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-blue-100 text-sm">Total Pets</p>
@@ -283,7 +283,7 @@ import { API_BASE_URL } from '../config';
           </div>
         )}
 
-        <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-xl shadow-lg">
+        <div className="dashboard-stat-card dashboard-stat-card-green text-white p-6 rounded-xl shadow-lg">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-green-100 text-sm">
@@ -301,7 +301,7 @@ import { API_BASE_URL } from '../config';
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-xl shadow-lg">
+        <div className="dashboard-stat-card dashboard-stat-card-purple text-white p-6 rounded-xl shadow-lg">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-purple-100 text-sm">

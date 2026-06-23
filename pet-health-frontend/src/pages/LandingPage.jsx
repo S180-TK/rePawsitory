@@ -14,7 +14,7 @@ const LandingPage = ({ onLogin }) => {
           />
           
           {/* Title with blue gradient */}
-          <h1 className="text-7xl font-black bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 bg-clip-text text-transparent tracking-tight">
+          <h1 className="brand-title text-5xl sm:text-6xl md:text-7xl font-black tracking-tight">
             rePawsitory
           </h1>
         </div>
