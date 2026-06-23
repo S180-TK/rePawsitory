@@ -27,7 +27,7 @@ const LandingPage = ({ onLogin }) => {
         {/* Login Button */}
         <button
           onClick={onLogin}
-          className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 px-12 py-4 text-lg font-bold text-white shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300"
+          className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-12 py-4 text-lg font-bold text-white shadow-lg hover:bg-blue-700 hover:shadow-xl hover:scale-105 transform transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300"
         >
           Get Started
         </button>
