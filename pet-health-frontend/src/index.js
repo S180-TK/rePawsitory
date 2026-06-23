@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
 import App from './App';
 import './index.css'  // Tailwind import
 import reportWebVitals from './reportWebVitals';
@@ -17,15 +16,15 @@ root.render(
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
 
-// Register service worker for PWA
+// Disable the old PWA service worker so deployments do not serve stale assets.
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(registration => {
-        console.log('✅ Service Worker registered:', registration);
+    navigator.serviceWorker.getRegistrations()
+      .then(registrations => {
+        registrations.forEach(registration => registration.unregister());
       })
       .catch(error => {
-        console.log('❌ Service Worker registration failed:', error);
+        console.log('Service Worker cleanup failed:', error);
       });
   });
 }

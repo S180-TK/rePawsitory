@@ -13,8 +13,10 @@ const LandingPage = ({ onLogin }) => {
             className="w-20 h-20"
           />
           
-          {/* Title with blue gradient */}
-          <h1 className="brand-title text-5xl sm:text-6xl md:text-7xl font-black tracking-tight">
+          <h1
+            className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tight"
+            style={{ color: '#0b5fa5' }}
+          >
             rePawsitory
           </h1>
         </div>
@@ -27,7 +29,8 @@ const LandingPage = ({ onLogin }) => {
         {/* Login Button */}
         <button
           onClick={onLogin}
-          className="landing-cta inline-flex items-center justify-center rounded-xl px-12 py-4 text-lg font-bold shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300"
+          className="inline-flex items-center justify-center rounded-xl px-12 py-4 text-lg font-bold shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300"
+          style={{ backgroundColor: '#0b5fa5', color: '#ffffff' }}
         >
           Get Started
         </button>
