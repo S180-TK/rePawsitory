@@ -1,6 +1,8 @@
 // server/server.js
 // Load environment variables in development
-if (process.env.NODE_ENV !== 'production') {
+const isVercel = process.env.VERCEL === '1';
+
+if (!isVercel && process.env.NODE_ENV !== 'production') {
   try {
     require('dotenv').config();
   } catch (err) {
@@ -57,7 +59,7 @@ app.use(express.json());
 
 // Serve static files from uploads directory
 // In production (Vercel), use /tmp; in development, use local uploads folder
-const uploadsPath = process.env.NODE_ENV === 'production' 
+const uploadsPath = isVercel || process.env.NODE_ENV === 'production' 
   ? '/tmp/uploads'
   : path.join(__dirname, 'uploads');
 app.use('/uploads', express.static(uploadsPath));
@@ -111,14 +113,18 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Connect to MongoDB
-connectToDatabase();
-
 // Export for Vercel (serverless)
 module.exports = app;
 
 // Start server (only in development)
-if (process.env.NODE_ENV !== 'production') {
+if (!isVercel && process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 5001;
-  app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
+  connectToDatabase()
+    .then(() => {
+      app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+    })
+    .catch((error) => {
+      console.error('Failed to start server:', error);
+      process.exit(1);
+    });
 }
