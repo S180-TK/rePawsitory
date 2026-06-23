@@ -29,4 +29,13 @@
   .dashboard-stat-card-purple {
     background: #6d4ab7;
   }
+
+  .landing-cta {
+    background-color: #0b5fa5;
+    color: #ffffff;
+  }
+
+  .landing-cta:hover {
+    background-color: #084f89;
+  }
 }

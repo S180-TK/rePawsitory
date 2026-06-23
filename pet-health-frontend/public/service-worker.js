@@ -1,5 +1,5 @@
 // rePawsitory Service Worker
-const CACHE_NAME = 'repawsitory-v1';
+const CACHE_NAME = 'repawsitory-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -41,6 +41,12 @@ self.addEventListener('activate', event => {
 
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', event => {
+  const requestUrl = new URL(event.request.url);
+
+  if (event.request.method !== 'GET' || requestUrl.origin !== self.location.origin) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then(response => {
