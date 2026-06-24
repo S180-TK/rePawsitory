@@ -23,6 +23,7 @@ const medicalRecordRoutes = require('./routes/medicalRecords');
 const petAccessRoutes = require('./routes/petAccess');
 const uploadRoutes = require('./routes/uploads');
 const adminRoutes = require('./routes/admin');
+const { streamFileByPath } = require('./services/fileStorage');
 
 // CORS configuration
 const allowedOrigins = [
@@ -57,11 +58,11 @@ app.use((req, res, next) => {
 // Body parser middleware
 app.use(express.json());
 
-// Serve static files from uploads directory
-// In production (Vercel), use /tmp; in development, use local uploads folder
+// Serve uploaded files from GridFS, with local disk fallback for older dev files.
 const uploadsPath = isVercel || process.env.NODE_ENV === 'production' 
   ? '/tmp/uploads'
   : path.join(__dirname, 'uploads');
+app.get('/uploads/:category/:filename', streamFileByPath);
 app.use('/uploads', express.static(uploadsPath));
 
 // Mount routes

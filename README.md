@@ -91,7 +91,7 @@ The application is also deployed online:
 - Frontend: https://re-pawsitory.vercel.app (Vercel)
 - Backend: https://repawsitory.onrender.com (Render)
 
-**Important Note:** Due to Render's free tier limitations, uploaded images (pet photos) are temporary and will be deleted when the backend server restarts or redeploys. For best experience with image uploads, run the application locally.
+Uploaded pet photos and medical record attachments are stored in MongoDB GridFS so deployed uploads remain available after backend restarts and redeploys.
 
 ---
 

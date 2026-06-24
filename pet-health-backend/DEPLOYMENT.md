@@ -130,23 +130,23 @@ curl -X POST https://your-backend-project.vercel.app/api/login \
 4. Check for memory/timeout issues (adjusted in vercel.json)
 
 ### Issue: File uploads not working
-**Note:** Files uploaded to `/tmp` in Vercel are ephemeral and will be deleted
+**Note:** Files uploaded directly to `/tmp` in Vercel are ephemeral and will be deleted. Current upload endpoints store files in MongoDB GridFS and serve them through `/uploads/...`.
 **Solutions:**
-1. For development, test locally
-2. For production, implement cloud storage (S3, Cloudinary, etc.)
-3. Consider storing file URLs in database instead of serving files directly
+1. Verify MongoDB is connected and `MONGODB_URI` is configured
+2. Check the `uploads.files` and `uploads.chunks` collections in MongoDB
+3. If you migrate away from GridFS, use persistent object storage such as S3 or Cloudinary
 
 ## Important Notes
 
 1. **Stateless Functions:** Each Vercel serverless function execution is independent
    - Database connections are cached but may be recreated
-   - File system writes go to `/tmp` and are temporary
+   - File system writes go to `/tmp` and are temporary, so uploads use MongoDB GridFS
 
 2. **Function Timeout:** Set to 30 seconds (max for free tier is 10s, upgrade may be needed)
 
 3. **Cold Starts:** First request after inactivity may be slower due to cold start
 
-4. **File Storage:** For production, migrate to cloud storage service:
+4. **File Storage:** Current production uploads use MongoDB GridFS. If traffic or file volume grows, consider migrating to object storage:
    - AWS S3
    - Cloudinary
    - Azure Blob Storage

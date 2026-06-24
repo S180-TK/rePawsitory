@@ -1,15 +1,23 @@
+const { uploadBuffer } = require('../services/fileStorage');
+
 // Upload medical record files
-exports.uploadMedicalRecordFiles = (req, res) => {
+exports.uploadMedicalRecordFiles = async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: 'At least one file is required' });
     }
 
-    // Return the URLs for all uploaded files
-    const uploadedFiles = req.files.map(file => ({
-      filename: file.filename,
-      fileUrl: `/uploads/medical-records/${file.filename}`,
-      fileType: file.mimetype
+    const storedFiles = await Promise.all(req.files.map(file => uploadBuffer({
+      buffer: file.buffer,
+      originalName: file.originalname,
+      mimetype: file.mimetype,
+      category: 'medical-records'
+    })));
+
+    const uploadedFiles = storedFiles.map(file => ({
+      filename: file.originalName || file.filename,
+      fileUrl: file.url,
+      fileType: file.contentType
     }));
 
     res.json({ 
@@ -23,18 +31,23 @@ exports.uploadMedicalRecordFiles = (req, res) => {
 };
 
 // Upload pet image
-exports.uploadPetImage = (req, res) => {
+exports.uploadPetImage = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // Return the URL path to the uploaded image
-    const imageUrl = `/uploads/pets/${req.file.filename}`;
+    const storedFile = await uploadBuffer({
+      buffer: req.file.buffer,
+      originalName: req.file.originalname,
+      mimetype: req.file.mimetype,
+      category: 'pets'
+    });
+
     res.json({ 
       message: 'Image uploaded successfully',
-      imageUrl: imageUrl,
-      filename: req.file.filename
+      imageUrl: storedFile.url,
+      filename: storedFile.originalName || storedFile.filename
     });
   } catch (error) {
     console.error('Upload error:', error);
