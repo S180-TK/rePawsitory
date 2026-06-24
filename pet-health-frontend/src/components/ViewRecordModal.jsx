@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Download, Calendar, FileText } from 'lucide-react';
+import { X, ExternalLink, Calendar, FileText } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
 const getFileTypeDescription = (filename) => {
@@ -18,11 +18,12 @@ const getFileTypeDescription = (filename) => {
 const ViewRecordModal = ({ isOpen, onClose, record }) => {
   if (!isOpen || !record) return null;
 
-  const handleDownload = (attachment) => {
-    // Create a temporary link and trigger download
+  const handleOpen = (attachment) => {
+    // Open the file in the browser; users can save it from there if needed.
     const link = document.createElement('a');
     link.href = `${API_BASE_URL}${attachment.fileUrl}`;
-    link.download = attachment.filename || attachment.fileUrl.split('/').pop();
+    link.target = '_blank';
+    link.rel = 'noreferrer';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -213,11 +214,11 @@ const ViewRecordModal = ({ isOpen, onClose, record }) => {
                       </div>
                     </div>
                     <button
-                      onClick={() => handleDownload(attachment)}
+                      onClick={() => handleOpen(attachment)}
                       className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
-                      <Download size={16} />
-                      Download
+                      <ExternalLink size={16} />
+                      Open
                     </button>
                   </div>
                 ))}
