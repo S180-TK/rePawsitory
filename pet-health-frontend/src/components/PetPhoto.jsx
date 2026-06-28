@@ -1,19 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { API_BASE_URL } from '../config';
 
-const getPetIcon = (species) => {
-  const normalizedSpecies = species?.toLowerCase();
-  if (normalizedSpecies === 'dog') return '🐕';
-  if (normalizedSpecies === 'cat') return '🐱';
-  return '🐾';
-};
-
 const getFileUrl = (url) => {
   if (!url) return '';
   return url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
 };
 
-const PetPhoto = ({ photoUrl, name, species, imageClassName, placeholderClassName }) => {
+const PetPhoto = ({ photoUrl, name, imageClassName, placeholderClassName }) => {
   const [imageFailed, setImageFailed] = useState(false);
 
   useEffect(() => {
@@ -32,9 +25,9 @@ const PetPhoto = ({ photoUrl, name, species, imageClassName, placeholderClassNam
   }
 
   return (
-    <span className={placeholderClassName}>
-      {getPetIcon(species)}
-    </span>
+    <div className={`${placeholderClassName} flex h-full w-full items-center justify-center bg-gray-50 text-center font-semibold text-gray-500`}>
+      Image Preview
+    </div>
   );
 };
 

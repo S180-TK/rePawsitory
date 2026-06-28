@@ -39,7 +39,7 @@ const ViewRecordModal = ({ isOpen, onClose, record }) => {
         throw new Error('File unavailable');
       }
     } catch (error) {
-      setAttachmentError('This file is no longer available. It may have been uploaded before persistent file storage was enabled and needs to be re-uploaded.');
+      setAttachmentError('This file is no longer available and needs to be re-uploaded.');
       return;
     }
 

@@ -196,7 +196,7 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet, refetchPets }) => {
                 name={pet.name}
                 species={pet.species}
                 imageClassName="w-full h-full object-cover"
-                placeholderClassName="text-8xl"
+                placeholderClassName="px-4 text-sm uppercase tracking-wide"
               />
             </div>
             <div className="p-6">

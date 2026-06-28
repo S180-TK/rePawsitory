@@ -196,7 +196,7 @@ const PetRecordsPage = ({ pet, onBack, viewOnly = false, isOwner = false, onEdit
                 name={pet.name}
                 species={pet.species}
                 imageClassName="w-full h-full object-cover"
-                placeholderClassName="text-9xl"
+                placeholderClassName="px-4 text-sm uppercase tracking-wide"
               />
             </div>
             

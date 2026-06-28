@@ -117,7 +117,7 @@ const PatientsPage = ({ patients, patientsLoading, patientsError }) => {
                   name={patient.name}
                   species={patient.species}
                   imageClassName="w-full h-full object-cover"
-                  placeholderClassName="text-6xl"
+                  placeholderClassName="px-4 text-sm uppercase tracking-wide"
                 />
               </div>
               <div className="p-6">
