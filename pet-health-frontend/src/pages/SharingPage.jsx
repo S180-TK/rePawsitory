@@ -146,7 +146,7 @@ const SharingPage = () => {
 
       await Promise.all(promises);
 
-      setMessage({ type: 'success', text: `Successfully granted access to Dr. ${selectedVet.name}` });
+      setMessage({ type: 'success', text: `Successfully shared records with Dr. ${selectedVet.name}` });
       setShowGrantModal(false);
       setSelectedVet(null);
       setSelectedPets([]);
@@ -166,7 +166,7 @@ const SharingPage = () => {
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     } catch (error) {
       console.error('Error granting access:', error);
-      setMessage({ type: 'error', text: 'Failed to grant access. Please try again.' });
+      setMessage({ type: 'error', text: 'Failed to share records. Please try again.' });
     } finally {
       setGrantingAccess(false);
     }
@@ -204,7 +204,7 @@ const SharingPage = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-800">Share Access</h1>
+      <h1 className="text-3xl font-bold text-gray-800">Share Records</h1>
 
       {/* Message Alert */}
       {message.text && (
@@ -268,7 +268,7 @@ const SharingPage = () => {
                     onClick={() => handleGrantAccess(vet)}
                     className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold whitespace-nowrap"
                   >
-                    Grant Access
+                    Share Records
                   </button>
                 </div>
               ))}
@@ -333,12 +333,12 @@ const SharingPage = () => {
         )}
       </div>
 
-      {/* Current Access */}
+      {/* Shared Records */}
       <div className="bg-white rounded-xl shadow-md p-6">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">Current Access</h2>
+        <h2 className="text-xl font-bold text-gray-800 mb-4">Shared Records</h2>
         {currentAccess.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            You haven't granted access to any veterinarians yet.
+            You haven't shared records with any veterinarians yet.
           </div>
         ) : (
           <div className="space-y-4">
@@ -352,7 +352,7 @@ const SharingPage = () => {
                     <h3 className="font-bold text-gray-800">{access.veterinarian?.name || 'Unknown'}</h3>
                     <p className="text-sm text-gray-600">{access.veterinarian?.clinic || 'N/A'}</p>
                     <p className="text-xs text-gray-500 mt-1">
-                      Access to: {access.pets?.map(p => p.name).join(', ') || 'N/A'}
+                      Shared pets: {access.pets?.map(p => p.name).join(', ') || 'N/A'}
                     </p>
                   </div>
                 </div>
@@ -368,15 +368,15 @@ const SharingPage = () => {
         )}
       </div>
 
-      {/* Grant Access Modal */}
+      {/* Share Records Modal */}
       {showGrantModal && selectedVet && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
             <h3 className="text-xl font-bold text-gray-800 mb-4">
-              Grant Access to Dr. {selectedVet.name}
+              Share Records with Dr. {selectedVet.name}
             </h3>
             <p className="text-sm text-gray-600 mb-4">
-              Select which pets you want to grant access to:
+              Select which pets you want to share:
             </p>
 
             <div className="space-y-2 mb-6 max-h-60 overflow-y-auto">

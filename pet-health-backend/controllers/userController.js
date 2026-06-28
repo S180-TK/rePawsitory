@@ -119,7 +119,7 @@ exports.changePassword = async (req, res) => {
 // Get all veterinarians (for pet owners to search and request access)
 exports.getAllVeterinarians = async (req, res) => {
   try {
-    const veterinarians = await User.find({ role: 'veterinarian' })
+    const veterinarians = await User.find({ role: 'veterinarian', isApproved: true })
       .select('name email clinic license specialization address')
       .lean();
 

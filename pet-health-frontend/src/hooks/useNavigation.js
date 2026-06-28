@@ -12,8 +12,8 @@ export const useNavigation = () => {
     { id: 'dashboard', icon: Home, label: 'Dashboard' },
     { id: 'pets', icon: Heart, label: 'My Pets' },
     { id: 'records', icon: FileText, label: 'Medical Records' },
-    { id: 'vets', icon: Search, label: 'Vet Search' },
-    { id: 'sharing', icon: Share2, label: 'Share Access' },
+    { id: 'vets', icon: Search, label: 'Find Vets' },
+    { id: 'sharing', icon: Share2, label: 'Share Records' },
     { id: 'settings', icon: Settings, label: 'Settings' }
   ];
 

@@ -23,7 +23,7 @@ const LandingPage = ({ onLogin }) => {
         
         {/* Tagline */}
         <p className="text-2xl text-gray-700 font-medium mb-12 leading-relaxed">
-          All your pet's health records, in one place.
+          Pet health records shared easily between owners and veterinarians.
         </p>
         
         {/* Login Button */}
@@ -52,8 +52,8 @@ const LandingPage = ({ onLogin }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
               </svg>
             </div>
-            <p className="font-semibold text-gray-800 mb-2">Easy Sharing</p>
-            <p className="text-sm text-gray-500 px-4">Grant veterinarians instant access to your pet's complete medical history</p>
+            <p className="font-semibold text-gray-800 mb-2">Shared Care</p>
+            <p className="text-sm text-gray-500 px-4">Share the right records with your veterinarian when your pet needs care</p>
           </div>
           <div className="flex flex-col items-center">
             <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-3">
@@ -61,7 +61,7 @@ const LandingPage = ({ onLogin }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <p className="font-semibold text-gray-800 mb-2">Secure Access</p>
+            <p className="font-semibold text-gray-800 mb-2">Secure Records</p>
             <p className="text-sm text-gray-500 px-4">Your pet's information is protected with enterprise-grade encryption</p>
           </div>
         </div>

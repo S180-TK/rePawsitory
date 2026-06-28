@@ -34,7 +34,7 @@ const PageRouter = ({
     case 'records':
       return <RecordsPage pets={pets} />;
     case 'vets':
-      return <VetsPage />;
+      return <VetsPage setCurrentPage={setCurrentPage} />;
     case 'sharing':
       return <SharingPage />;
     case 'settings':

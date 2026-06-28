@@ -244,7 +244,7 @@ import { API_BASE_URL } from '../config';
               <p className="text-yellow-800 mb-4">
                 Please complete your profile to unlock all features. You need to add your phone number and address
                 {userRole === 'vet' && ', along with your clinic name, license number, and specialization'}
-                {' '}before you can {userRole === 'owner' ? 'add pets or grant access to veterinarians' : 'view your assigned patients'}.
+                {' '}before you can {userRole === 'owner' ? 'add pets or share records with veterinarians' : 'view your assigned patients'}.
               </p>
               <button
                 onClick={() => setCurrentPage('settings')}

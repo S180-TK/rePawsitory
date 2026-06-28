@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, MapPin, Award, Building2 } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
-const VetsPage = () => {
+const VetsPage = ({ setCurrentPage }) => {
   const [vets, setVets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -50,11 +50,11 @@ const VetsPage = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Find a Veterinarian</h1>
-          <p className="text-gray-600 mt-1">Search for veterinarians in your area</p>
+          <p className="text-gray-600 mt-1">Search for approved veterinarians who use rePawsitory</p>
         </div>
         <div className="text-right">
           <div className="text-2xl font-bold text-green-600">{filteredVets.length}</div>
-          <div className="text-sm text-gray-500">Veterinarians Available</div>
+          <div className="text-sm text-gray-500">Approved Veterinarians</div>
         </div>
       </div>
 
@@ -149,8 +149,11 @@ const VetsPage = () => {
 
                 {/* Action buttons */}
                 <div className="mt-4 flex gap-2">
-                  <button className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold">
-                    Request Access
+                  <button
+                    onClick={() => setCurrentPage('sharing')}
+                    className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold"
+                  >
+                    Share Records
                   </button>
                   <button className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm font-semibold">
                     View Profile
