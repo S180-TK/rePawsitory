@@ -33,6 +33,14 @@ const surgerySchema = new mongoose.Schema({
   recovery: String
 });
 
+const labResultSchema = new mongoose.Schema({
+  testName: String,
+  result: String,
+  referenceRange: String,
+  labName: String,
+  collectionDate: Date
+});
+
 const medicalRecordSchema = new mongoose.Schema({
   pet: {
     type: mongoose.Schema.Types.ObjectId,
@@ -49,6 +57,7 @@ const medicalRecordSchema = new mongoose.Schema({
   medication: medicationSchema,
   checkup: checkupSchema,
   surgery: surgerySchema,
+  labResult: labResultSchema,
   // Common fields
   date: {
     type: Date,

@@ -2,6 +2,77 @@ const MedicalRecord = require('../models/MedicalRecord');
 const Pet = require('../models/Pet');
 const PetAccess = require('../models/PetAccess');
 
+const typeSpecificFields = ['vaccination', 'medication', 'checkup', 'surgery', 'labResult'];
+
+const toDateOrUndefined = (value) => value ? new Date(value) : undefined;
+
+const compactObject = (data) => Object.fromEntries(
+  Object.entries(data).filter(([, value]) => value !== undefined && value !== '')
+);
+
+const buildTypeSpecificData = (data, recordType) => {
+  if (recordType === 'vaccination' && data.vaccination) {
+    return {
+      vaccination: compactObject({
+        name: data.vaccination.name,
+        manufacturer: data.vaccination.manufacturer,
+        batchNumber: data.vaccination.batchNumber,
+        date: toDateOrUndefined(data.vaccination.date),
+        nextDueDate: toDateOrUndefined(data.vaccination.nextDueDate)
+      })
+    };
+  }
+
+  if (recordType === 'medication' && data.medication) {
+    return {
+      medication: compactObject({
+        name: data.medication.name,
+        dosage: data.medication.dosage,
+        frequency: data.medication.frequency,
+        startDate: toDateOrUndefined(data.medication.startDate),
+        endDate: toDateOrUndefined(data.medication.endDate)
+      })
+    };
+  }
+
+  if (recordType === 'checkup' && data.checkup) {
+    return {
+      checkup: compactObject({
+        reason: data.checkup.reason,
+        findings: data.checkup.findings,
+        recommendations: data.checkup.recommendations,
+        followUpDate: toDateOrUndefined(data.checkup.followUpDate)
+      })
+    };
+  }
+
+  if (recordType === 'surgery' && data.surgery) {
+    return {
+      surgery: compactObject({
+        procedure: data.surgery.procedure,
+        preOpNotes: data.surgery.preOpNotes,
+        postOpNotes: data.surgery.postOpNotes,
+        complications: data.surgery.complications,
+        recovery: data.surgery.recovery
+      })
+    };
+  }
+
+  if (recordType === 'lab_result' && data.labResult) {
+    return {
+      labResult: compactObject({
+        testName: data.labResult.testName,
+        result: data.labResult.result,
+        referenceRange: data.labResult.referenceRange,
+        labName: data.labResult.labName,
+        collectionDate: toDateOrUndefined(data.labResult.collectionDate)
+      })
+    };
+  }
+
+  return {};
+};
+
 // Helper to check write access
 const hasWriteAccessToPet = async (user, petId) => {
   const pet = await Pet.findById(petId).lean();
@@ -61,15 +132,17 @@ exports.createMedicalRecord = async (req, res) => {
       return res.status(400).json({ error: 'At least one attachment (PDF or image) is required' });
     }
 
+    const recordType = data.type || 'other';
     const record = new MedicalRecord({
       pet: petId,
-      recordType: data.type || 'other',
+      recordType,
       date: data.date ? new Date(data.date) : new Date(),
       // prefer using authenticated user as veterinarian id when they are a vet
       veterinarian: user.role === 'veterinarian' ? user._id : (data.veterinarian || user._id),
       notes: data.notes || '',
       // attachments must follow { filename, fileUrl, fileType }
       attachments: attachments.map(a => ({ filename: a.filename, fileUrl: a.fileUrl, fileType: a.fileType })),
+      ...buildTypeSpecificData(data, recordType),
       createdBy: user._id,
       updatedBy: user._id
     });
@@ -96,12 +169,19 @@ exports.updateMedicalRecord = async (req, res) => {
 
     const updates = req.body || {};
     // Map updates safely to schema fields
-    if (updates.type !== undefined) existing.recordType = updates.type;
+    const nextRecordType = updates.type !== undefined ? updates.type : existing.recordType;
+    if (updates.type !== undefined) existing.recordType = nextRecordType;
     if (updates.date !== undefined) existing.date = new Date(updates.date);
     if (updates.veterinarian !== undefined) existing.veterinarian = user.role === 'veterinarian' ? user._id : updates.veterinarian;
     if (updates.notes !== undefined) existing.notes = updates.notes;
     if (updates.attachments !== undefined && Array.isArray(updates.attachments) && updates.attachments.length > 0) {
       existing.attachments = updates.attachments.map(a => ({ filename: a.filename, fileUrl: a.fileUrl, fileType: a.fileType }));
+    }
+    if (updates.type !== undefined || typeSpecificFields.some(field => updates[field] !== undefined)) {
+      typeSpecificFields.forEach(field => {
+        existing[field] = undefined;
+      });
+      Object.assign(existing, buildTypeSpecificData(updates, nextRecordType));
     }
     existing.updatedBy = user._id;
     existing.updatedAt = new Date();

@@ -132,11 +132,17 @@ const ViewRecordModal = ({ isOpen, onClose, record }) => {
             <div className="bg-blue-50 p-4 rounded-lg">
               <h3 className="font-semibold text-blue-900 mb-3">Vaccination Details</h3>
               <div className="space-y-2 text-sm">
-                {record.vaccination.vaccineName && (
-                  <p><span className="font-semibold">Vaccine:</span> {record.vaccination.vaccineName}</p>
+                {record.vaccination.name && (
+                  <p><span className="font-semibold">Vaccine:</span> {record.vaccination.name}</p>
+                )}
+                {record.vaccination.manufacturer && (
+                  <p><span className="font-semibold">Manufacturer:</span> {record.vaccination.manufacturer}</p>
                 )}
                 {record.vaccination.batchNumber && (
                   <p><span className="font-semibold">Batch Number:</span> {record.vaccination.batchNumber}</p>
+                )}
+                {record.vaccination.date && (
+                  <p><span className="font-semibold">Administered:</span> {formatDate(record.vaccination.date)}</p>
                 )}
                 {record.vaccination.nextDueDate && (
                   <p><span className="font-semibold">Next Due:</span> {formatDate(record.vaccination.nextDueDate)}</p>
@@ -149,8 +155,8 @@ const ViewRecordModal = ({ isOpen, onClose, record }) => {
             <div className="bg-purple-50 p-4 rounded-lg">
               <h3 className="font-semibold text-purple-900 mb-3">Medication Details</h3>
               <div className="space-y-2 text-sm">
-                {record.medication.medicationName && (
-                  <p><span className="font-semibold">Medication:</span> {record.medication.medicationName}</p>
+                {record.medication.name && (
+                  <p><span className="font-semibold">Medication:</span> {record.medication.name}</p>
                 )}
                 {record.medication.dosage && (
                   <p><span className="font-semibold">Dosage:</span> {record.medication.dosage}</p>
@@ -172,17 +178,17 @@ const ViewRecordModal = ({ isOpen, onClose, record }) => {
             <div className="bg-green-50 p-4 rounded-lg">
               <h3 className="font-semibold text-green-900 mb-3">Checkup Details</h3>
               <div className="space-y-2 text-sm">
-                {record.checkup.weight && (
-                  <p><span className="font-semibold">Weight:</span> {record.checkup.weight}</p>
-                )}
-                {record.checkup.temperature && (
-                  <p><span className="font-semibold">Temperature:</span> {record.checkup.temperature}</p>
-                )}
-                {record.checkup.heartRate && (
-                  <p><span className="font-semibold">Heart Rate:</span> {record.checkup.heartRate} bpm</p>
+                {record.checkup.reason && (
+                  <p><span className="font-semibold">Reason:</span> {record.checkup.reason}</p>
                 )}
                 {record.checkup.findings && (
                   <p><span className="font-semibold">Findings:</span> {record.checkup.findings}</p>
+                )}
+                {record.checkup.recommendations && (
+                  <p><span className="font-semibold">Recommendations:</span> {record.checkup.recommendations}</p>
+                )}
+                {record.checkup.followUpDate && (
+                  <p><span className="font-semibold">Follow-up Date:</span> {formatDate(record.checkup.followUpDate)}</p>
                 )}
               </div>
             </div>
@@ -192,17 +198,43 @@ const ViewRecordModal = ({ isOpen, onClose, record }) => {
             <div className="bg-red-50 p-4 rounded-lg">
               <h3 className="font-semibold text-red-900 mb-3">Surgery Details</h3>
               <div className="space-y-2 text-sm">
-                {record.surgery.procedureName && (
-                  <p><span className="font-semibold">Procedure:</span> {record.surgery.procedureName}</p>
+                {record.surgery.procedure && (
+                  <p><span className="font-semibold">Procedure:</span> {record.surgery.procedure}</p>
                 )}
-                {record.surgery.anesthesiaUsed && (
-                  <p><span className="font-semibold">Anesthesia:</span> {record.surgery.anesthesiaUsed}</p>
+                {record.surgery.preOpNotes && (
+                  <p><span className="font-semibold">Pre-op Notes:</span> {record.surgery.preOpNotes}</p>
+                )}
+                {record.surgery.postOpNotes && (
+                  <p><span className="font-semibold">Post-op Notes:</span> {record.surgery.postOpNotes}</p>
                 )}
                 {record.surgery.complications && (
                   <p><span className="font-semibold">Complications:</span> {record.surgery.complications}</p>
                 )}
-                {record.surgery.followUpDate && (
-                  <p><span className="font-semibold">Follow-up Date:</span> {formatDate(record.surgery.followUpDate)}</p>
+                {record.surgery.recovery && (
+                  <p><span className="font-semibold">Recovery:</span> {record.surgery.recovery}</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {record.recordType === 'lab_result' && record.labResult && (
+            <div className="bg-yellow-50 p-4 rounded-lg">
+              <h3 className="font-semibold text-yellow-900 mb-3">Lab Result Details</h3>
+              <div className="space-y-2 text-sm">
+                {record.labResult.testName && (
+                  <p><span className="font-semibold">Test Name:</span> {record.labResult.testName}</p>
+                )}
+                {record.labResult.labName && (
+                  <p><span className="font-semibold">Lab:</span> {record.labResult.labName}</p>
+                )}
+                {record.labResult.result && (
+                  <p><span className="font-semibold">Result:</span> {record.labResult.result}</p>
+                )}
+                {record.labResult.referenceRange && (
+                  <p><span className="font-semibold">Reference Range:</span> {record.labResult.referenceRange}</p>
+                )}
+                {record.labResult.collectionDate && (
+                  <p><span className="font-semibold">Collection Date:</span> {formatDate(record.labResult.collectionDate)}</p>
                 )}
               </div>
             </div>
