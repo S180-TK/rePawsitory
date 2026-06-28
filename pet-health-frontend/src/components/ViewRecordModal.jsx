@@ -1,5 +1,5 @@
-import React from 'react';
-import { X, ExternalLink, Calendar, FileText } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { X, ExternalLink, Calendar, FileText, AlertCircle } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
 const getFileTypeDescription = (filename) => {
@@ -16,12 +16,35 @@ const getFileTypeDescription = (filename) => {
 };
 
 const ViewRecordModal = ({ isOpen, onClose, record }) => {
+  const [attachmentError, setAttachmentError] = useState('');
+
+  useEffect(() => {
+    setAttachmentError('');
+  }, [record?._id, isOpen]);
+
   if (!isOpen || !record) return null;
 
-  const handleOpen = (attachment) => {
-    // Open the file in the browser; users can save it from there if needed.
+  const getAttachmentUrl = (attachment) => {
+    const fileUrl = attachment.fileUrl || '';
+    return fileUrl.startsWith('http') ? fileUrl : `${API_BASE_URL}${fileUrl}`;
+  };
+
+  const handleOpen = async (attachment) => {
+    const url = getAttachmentUrl(attachment);
+    setAttachmentError('');
+
+    try {
+      const response = await fetch(url, { method: 'HEAD' });
+      if (!response.ok) {
+        throw new Error('File unavailable');
+      }
+    } catch (error) {
+      setAttachmentError('This file is no longer available. It may have been uploaded before persistent file storage was enabled and needs to be re-uploaded.');
+      return;
+    }
+
     const link = document.createElement('a');
-    link.href = `${API_BASE_URL}${attachment.fileUrl}`;
+    link.href = url;
     link.target = '_blank';
     link.rel = 'noreferrer';
     document.body.appendChild(link);
@@ -194,6 +217,12 @@ const ViewRecordModal = ({ isOpen, onClose, record }) => {
                 </svg>
                 Attachments ({record.attachments.length})
               </h3>
+              {attachmentError && (
+                <div className="mb-3 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                  <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
+                  <span>{attachmentError}</span>
+                </div>
+              )}
               <div className="space-y-2">
                 {record.attachments.map((attachment, index) => (
                   <div 

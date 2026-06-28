@@ -5,6 +5,7 @@ import { API_BASE_URL } from '../config';
 import EditPetModal from '../components/EditPetModal';
 import PetRecordsPage from './PetRecordsPage';
 import { useNavigation } from '../hooks/useNavigation';
+import PetPhoto from '../components/PetPhoto';
 
 const PetsPage = ({ pets, petsLoading, petsError, addPet, refetchPets }) => {
   const { navigateTo } = useNavigation();
@@ -190,15 +191,13 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet, refetchPets }) => {
           {pets.map(pet => (
           <div key={pet.id || pet._id} className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow overflow-hidden cursor-pointer">
             <div className="bg-gradient-to-br from-blue-400 to-blue-600 aspect-square flex items-center justify-center overflow-hidden relative">
-              {pet.photoUrl ? (
-                <img 
-                  src={`${API_BASE_URL}${pet.photoUrl}`}
-                  alt={pet.name} 
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span className="text-8xl">🐾</span>
-              )}
+              <PetPhoto
+                photoUrl={pet.photoUrl}
+                name={pet.name}
+                species={pet.species}
+                imageClassName="w-full h-full object-cover"
+                placeholderClassName="text-8xl"
+              />
             </div>
             <div className="p-6">
               <div className="flex items-start justify-between mb-4">

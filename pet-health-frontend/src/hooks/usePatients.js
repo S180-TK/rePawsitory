@@ -26,6 +26,16 @@ export const usePatients = () => {
           return;
         }
 
+        const parsedUser = JSON.parse(user);
+        const role = parsedUser.role;
+        if (role !== 'vet' && role !== 'veterinarian') {
+          if (isMounted) {
+            setPatients([]);
+            setLoading(false);
+          }
+          return;
+        }
+
         const response = await fetch(`${API_BASE_URL}/api/vet/patients`, {
           headers: {
             'Authorization': `Bearer ${token}`,

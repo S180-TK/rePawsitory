@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, User } from 'lucide-react';
 import PetRecordsPage from './PetRecordsPage';
-import { API_BASE_URL } from '../config';
+import PetPhoto from '../components/PetPhoto';
 
 const PatientsPage = ({ patients, patientsLoading, patientsError }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -112,18 +112,13 @@ const PatientsPage = ({ patients, patientsLoading, patientsError }) => {
           {filteredPatients.map(patient => (
             <div key={patient._id} className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow overflow-hidden">
               <div className="bg-gradient-to-br from-green-400 to-green-600 h-32 flex items-center justify-center overflow-hidden">
-                {patient.photoUrl ? (
-                  <img 
-                    src={`${API_BASE_URL}${patient.photoUrl}`}
-                    alt={patient.name} 
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-6xl">
-                    {patient.species?.toLowerCase() === 'dog' ? '🐕' : 
-                     patient.species?.toLowerCase() === 'cat' ? '🐱' : '🐾'}
-                  </span>
-                )}
+                <PetPhoto
+                  photoUrl={patient.photoUrl}
+                  name={patient.name}
+                  species={patient.species}
+                  imageClassName="w-full h-full object-cover"
+                  placeholderClassName="text-6xl"
+                />
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-bold text-gray-800 mb-2">{patient.name}</h3>

@@ -3,6 +3,7 @@ import AddRecordModal from '../components/AddRecordModal';
 import ViewRecordModal from '../components/ViewRecordModal';
 import { ArrowLeft, Edit2, Trash2, FileText } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+import PetPhoto from '../components/PetPhoto';
 
 const PetRecordsPage = ({ pet, onBack, viewOnly = false, isOwner = false, onEditPet = null, refetchPets = null }) => {
   const [records, setRecords] = useState([]);
@@ -190,18 +191,13 @@ const PetRecordsPage = ({ pet, onBack, viewOnly = false, isOwner = false, onEdit
           {/* Right Side - Pet Photo */}
           <div className="flex-shrink-0 w-80">
             <div className="bg-gradient-to-br from-green-400 to-green-600 rounded-lg overflow-hidden h-64 flex items-center justify-center">
-              {pet.photoUrl ? (
-                <img 
-                  src={`${API_BASE_URL}${pet.photoUrl}`}
-                  alt={pet.name} 
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span className="text-9xl">
-                  {pet.species?.toLowerCase() === 'dog' ? '🐕' : 
-                   pet.species?.toLowerCase() === 'cat' ? '🐱' : '🐾'}
-                </span>
-              )}
+              <PetPhoto
+                photoUrl={pet.photoUrl}
+                name={pet.name}
+                species={pet.species}
+                imageClassName="w-full h-full object-cover"
+                placeholderClassName="text-9xl"
+              />
             </div>
             
             {/* Remove Pet Button (Owner Only) */}
