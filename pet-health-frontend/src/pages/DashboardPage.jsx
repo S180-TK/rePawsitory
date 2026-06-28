@@ -1,20 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, FileText, Users, Bell, AlertTriangle, Settings } from 'lucide-react';
+import { Heart, FileText, Users, AlertTriangle, Settings } from 'lucide-react';
 import ViewRecordModal from '../components/ViewRecordModal';
 import { API_BASE_URL } from '../config';
 
-  const DashboardPage = ({ userRole, pets, recentRecords, petsLoading, petsError, setCurrentPage }) => {
+const DashboardPage = ({ userRole, pets, petsLoading, petsError, setCurrentPage }) => {
   const user = JSON.parse(localStorage.getItem('user') || 'null');
+  const userId = user?.id || user?._id;
   const [profileComplete, setProfileComplete] = useState(true); // Default to true to avoid showing warning before check
   const [checkingProfile, setCheckingProfile] = useState(true);
   const [recentActivity, setRecentActivity] = useState([]);
   const [loadingActivity, setLoadingActivity] = useState(true);
   const [viewingRecord, setViewingRecord] = useState(null);
-  const [totalRecordsCount, setTotalRecordsCount] = useState(0);
-  const [sharedVetsCount, setSharedVetsCount] = useState(0);
-  const [loadingSharedVets, setLoadingSharedVets] = useState(true);
-  const [activePatientsCount, setActivePatientsCount] = useState(0);
-  const [loadingPatients, setLoadingPatients] = useState(true);
 
   useEffect(() => {
     const checkProfileCompletion = async () => {
@@ -47,7 +43,7 @@ import { API_BASE_URL } from '../config';
     checkProfileCompletion();
   }, []);
 
-  // Fetch recent medical records and count for pet owners
+  // Fetch recent medical records for pet owners
   useEffect(() => {
     const fetchRecentActivity = async () => {
       if (userRole !== 'owner' || !pets || pets.length === 0) {
@@ -67,8 +63,6 @@ import { API_BASE_URL } from '../config';
         
         const results = await Promise.all(recordsPromises);
         const combined = results.flat().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        // Set the total count of all records
-        setTotalRecordsCount(combined.length);
         // Get only the 3 most recently created records
         setRecentActivity(combined.slice(0, 3));
       } catch (error) {
@@ -92,9 +86,6 @@ import { API_BASE_URL } from '../config';
       setLoadingActivity(true);
       try {
         const token = localStorage.getItem('token');
-        const userId = user?.id || user?._id;
-        
-        console.log('Logged in user:', user);
         console.log('User ID:', userId);
         
         // Fetch all patients
@@ -130,9 +121,6 @@ import { API_BASE_URL } from '../config';
           
           console.log('My records:', myRecords);
           
-          // Set the count of records created by this vet
-          setTotalRecordsCount(myRecords.length);
-          
           // Get only the 3 most recently CREATED records (not by procedure date)
           const sortedRecords = myRecords.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
           setRecentActivity(sortedRecords.slice(0, 3));
@@ -140,80 +128,13 @@ import { API_BASE_URL } from '../config';
       } catch (error) {
         console.error('Error fetching vet records:', error);
         setRecentActivity([]);
-        setTotalRecordsCount(0);
       } finally {
         setLoadingActivity(false);
       }
     };
 
     fetchVetRecords();
-  }, [userRole]);
-
-  // Fetch shared vets count for pet owners
-  useEffect(() => {
-    const fetchSharedVetsCount = async () => {
-      if (userRole !== 'owner') {
-        setLoadingSharedVets(false);
-        return;
-      }
-
-      setLoadingSharedVets(true);
-      try {
-        const token = localStorage.getItem('token');
-        // Fetch all access grants made by the current user
-        const response = await fetch(`${API_BASE_URL}/api/pet-access/my-grants`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (response.ok) {
-          const grants = await response.json();
-          // Count unique veterinarians
-          setSharedVetsCount(grants.length);
-        } else {
-          setSharedVetsCount(0);
-        }
-      } catch (error) {
-        console.error('Error fetching shared vets count:', error);
-        setSharedVetsCount(0);
-      } finally {
-        setLoadingSharedVets(false);
-      }
-    };
-
-    fetchSharedVetsCount();
-  }, [userRole]);
-
-  // Fetch active patients count for veterinarians
-  useEffect(() => {
-    const fetchActivePatientsCount = async () => {
-      if (userRole !== 'vet') {
-        setLoadingPatients(false);
-        return;
-      }
-
-      setLoadingPatients(true);
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${API_BASE_URL}/api/vet/patients`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (response.ok) {
-          const patients = await response.json();
-          setActivePatientsCount(patients.length);
-        } else {
-          setActivePatientsCount(0);
-        }
-      } catch (error) {
-        console.error('Error fetching active patients count:', error);
-        setActivePatientsCount(0);
-      } finally {
-        setLoadingPatients(false);
-      }
-    };
-
-    fetchActivePatientsCount();
-  }, [userRole]);
+  }, [userRole, userId]);
 
   const formatDate = (date) => {
     if (!date) return 'N/A';
@@ -223,6 +144,62 @@ import { API_BASE_URL } from '../config';
       day: 'numeric'
     });
   };
+
+  const ownerActions = [
+    {
+      title: 'Manage Pets',
+      description: petsLoading
+        ? 'Loading your pet profiles...'
+        : petsError
+          ? 'Open your pet list and try refreshing your profiles.'
+          : pets && pets.length > 0
+            ? 'Keep each pet profile, photo, and health details up to date.'
+            : 'Add your first pet profile so records have a home.',
+      icon: Heart,
+      page: 'pets',
+      button: 'Open Pets'
+    },
+    {
+      title: 'Review Records',
+      description: 'Browse medical history by pet and record type.',
+      icon: FileText,
+      page: 'records',
+      button: 'View Records'
+    },
+    {
+      title: 'Share Records',
+      description: 'Choose which pets to share with an approved veterinarian.',
+      icon: Users,
+      page: 'sharing',
+      button: 'Share Records'
+    }
+  ];
+
+  const vetActions = [
+    {
+      title: 'Open Patients',
+      description: 'Review pets whose records have been shared with you.',
+      icon: Users,
+      page: 'patients',
+      button: 'View Patients'
+    },
+    {
+      title: 'Recent Records',
+      description: 'Use recent activity below to jump back into records you created.',
+      icon: FileText,
+      page: null,
+      button: null
+    },
+    {
+      title: 'Clinic Profile',
+      description: 'Keep your clinic, specialization, and contact details current.',
+      icon: Settings,
+      page: 'settings',
+      button: 'Open Settings'
+    }
+  ];
+
+  const actionCards = userRole === 'owner' ? ownerActions : vetActions;
 
   return (
     <div className="space-y-6">
@@ -258,74 +235,25 @@ import { API_BASE_URL } from '../config';
         </div>
       )}
 
-      {/* Stats Cards */}
-      <div className={`grid grid-cols-1 ${userRole === 'vet' ? 'md:grid-cols-2' : 'md:grid-cols-3'} gap-6`}>
-        {userRole === 'owner' && (
-          <div className="dashboard-stat-card dashboard-stat-card-blue text-white p-6 rounded-xl shadow-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-100 text-sm">Total Pets</p>
-                <p className="text-3xl font-bold mt-1">
-                  {petsLoading ? (
-                    <span className="text-lg">Loading...</span>
-                  ) : petsError ? (
-                    <span className="text-lg">--</span>
-                  ) : (
-                    pets.length
-                  )}
-                </p>
-                {petsError && (
-                  <p className="text-blue-200 text-xs mt-1">Unable to load</p>
-                )}
-              </div>
-              <Heart size={40} className="opacity-80" />
+      {/* Action Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {actionCards.map(({ title, description, icon: Icon, page, button }) => (
+          <div key={title} className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mb-4">
+              <Icon size={24} className="text-blue-600" />
             </div>
+            <h2 className="text-lg font-bold text-gray-800 mb-2">{title}</h2>
+            <p className="text-sm text-gray-600 leading-relaxed mb-5 min-h-[44px]">{description}</p>
+            {button && (
+              <button
+                onClick={() => setCurrentPage(page)}
+                className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold"
+              >
+                {button}
+              </button>
+            )}
           </div>
-        )}
-
-        <div className="dashboard-stat-card dashboard-stat-card-green text-white p-6 rounded-xl shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-green-100 text-sm">
-                {userRole === 'owner' ? 'Medical Records' : 'Total Records Created'}
-              </p>
-              <p className="text-3xl font-bold mt-1">
-                {loadingActivity ? (
-                  <span className="text-lg">Loading...</span>
-                ) : (
-                  totalRecordsCount
-                )}
-              </p>
-            </div>
-            <FileText size={40} className="opacity-80" />
-          </div>
-        </div>
-
-        <div className="dashboard-stat-card dashboard-stat-card-purple text-white p-6 rounded-xl shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-purple-100 text-sm">
-                {userRole === 'owner' ? 'Shared With Vets' : 'Active Patients'}
-              </p>
-              <p className="text-3xl font-bold mt-1">
-                {userRole === 'owner' ? (
-                  loadingSharedVets ? (
-                    <span className="text-lg">Loading...</span>
-                  ) : (
-                    sharedVetsCount
-                  )
-                ) : (
-                  loadingPatients ? (
-                    <span className="text-lg">Loading...</span>
-                  ) : (
-                    activePatientsCount
-                  )
-                )}
-              </p>
-            </div>
-            <Users size={40} className="opacity-80" />
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* Recent Activity */}
