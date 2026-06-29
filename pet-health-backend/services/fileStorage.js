@@ -78,7 +78,34 @@ const streamFileByPath = async (req, res, next) => {
   }
 };
 
+const checkStorageHealth = async () => {
+  const bucket = getBucket();
+  const db = mongoose.connection.db;
+  const filesCollection = `${BUCKET_NAME}.files`;
+  const chunksCollection = `${BUCKET_NAME}.chunks`;
+
+  await db.command({ ping: 1 });
+
+  const collections = await db.listCollections({
+    name: { $in: [filesCollection, chunksCollection] }
+  }).toArray();
+  const collectionNames = new Set(collections.map(collection => collection.name));
+
+  await bucket.find({}).limit(1).toArray();
+
+  return {
+    ready: true,
+    bucketName: BUCKET_NAME,
+    databaseReadyState: mongoose.connection.readyState,
+    collections: {
+      files: collectionNames.has(filesCollection),
+      chunks: collectionNames.has(chunksCollection)
+    }
+  };
+};
+
 module.exports = {
   uploadBuffer,
-  streamFileByPath
+  streamFileByPath,
+  checkStorageHealth
 };

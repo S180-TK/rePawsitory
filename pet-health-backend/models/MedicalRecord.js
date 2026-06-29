@@ -70,7 +70,7 @@ const medicalRecordSchema = new mongoose.Schema({
     required: true
   },
   notes: String,
-  // File attachments (at least one required)
+  // Optional file attachments
   attachments: {
     type: [{
       filename: { type: String, required: true },
@@ -82,12 +82,7 @@ const medicalRecordSchema = new mongoose.Schema({
       },
       uploadDate: { type: Date, default: Date.now }
     }],
-    validate: {
-      validator: function(attachments) {
-        return attachments && attachments.length > 0;
-      },
-      message: 'At least one file attachment (PDF or image) is required'
-    }
+    default: []
   },
   // Creator tracking
   createdBy: {

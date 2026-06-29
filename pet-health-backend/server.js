@@ -23,7 +23,7 @@ const medicalRecordRoutes = require('./routes/medicalRecords');
 const petAccessRoutes = require('./routes/petAccess');
 const uploadRoutes = require('./routes/uploads');
 const adminRoutes = require('./routes/admin');
-const { streamFileByPath } = require('./services/fileStorage');
+const { streamFileByPath, checkStorageHealth } = require('./services/fileStorage');
 
 // CORS configuration
 const allowedOrigins = [
@@ -58,12 +58,18 @@ app.use((req, res, next) => {
 // Body parser middleware
 app.use(express.json());
 
-// Serve uploaded files from GridFS, with local disk fallback for older dev files.
-const uploadsPath = isVercel || process.env.NODE_ENV === 'production' 
-  ? '/tmp/uploads'
-  : path.join(__dirname, 'uploads');
+// Serve uploaded files from GridFS. Keep static disk fallback only for local dev artifacts.
+const uploadsPath = path.join(__dirname, 'uploads');
 app.get('/uploads/:category/:filename', streamFileByPath);
-app.use('/uploads', express.static(uploadsPath));
+if (!isVercel && process.env.NODE_ENV !== 'production') {
+  app.use('/uploads', express.static(uploadsPath));
+}
+app.use('/uploads', (req, res) => {
+  res.status(404).json({
+    error: 'File Not Found',
+    message: 'This file is no longer available and needs to be re-uploaded.'
+  });
+});
 
 // Mount routes
 app.use('/api', authRoutes);                    // Authentication routes (login, signup)
@@ -94,6 +100,23 @@ app.get('/', (req, res) => {
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+});
+
+app.get('/health/storage', async (req, res) => {
+  try {
+    const storage = await checkStorageHealth();
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      storage
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
+      error: error.message
+    });
+  }
 });
 
 // 404 handler for undefined routes

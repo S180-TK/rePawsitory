@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { X, ExternalLink, Calendar, FileText, AlertCircle } from 'lucide-react';
-import { API_BASE_URL } from '../config';
+import { getFileUrl } from '../config';
 
 const getFileTypeDescription = (filename) => {
   if (!filename) return 'File';
@@ -25,8 +25,7 @@ const ViewRecordModal = ({ isOpen, onClose, record }) => {
   if (!isOpen || !record) return null;
 
   const getAttachmentUrl = (attachment) => {
-    const fileUrl = attachment.fileUrl || '';
-    return fileUrl.startsWith('http') ? fileUrl : `${API_BASE_URL}${fileUrl}`;
+    return getFileUrl(attachment.fileUrl || '');
   };
 
   const handleOpen = async (attachment) => {

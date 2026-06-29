@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { API_BASE_URL } from '../config';
-
-const getFileUrl = (url) => {
-  if (!url) return '';
-  return url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
-};
+import { getFileUrl } from '../config';
 
 const PetPhoto = ({ photoUrl, name, imageClassName, placeholderClassName }) => {
   const [imageFailed, setImageFailed] = useState(false);

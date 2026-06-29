@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Upload } from 'lucide-react';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, getFileUrl } from '../config';
 
 const emptyTypeDetails = {
   vaccination: {
@@ -172,7 +172,10 @@ const AddRecordModal = ({ isOpen, onClose, onSave, petId, initialData }) => {
         body: fd
       });
 
-      if (!res.ok) throw new Error('Upload failed');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Upload failed');
+      }
       const data = await res.json();
       const filesMeta = data.files || [];
 
@@ -193,6 +196,11 @@ const AddRecordModal = ({ isOpen, onClose, onSave, petId, initialData }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (uploading) {
+      alert('Please wait for file uploads to finish before saving.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -217,7 +225,10 @@ const AddRecordModal = ({ isOpen, onClose, onSave, petId, initialData }) => {
           },
           body: JSON.stringify(payload)
         });
-        if (!res.ok) throw new Error('Failed to update');
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData.error || 'Failed to update');
+        }
         const updated = await res.json();
         onSave(updated);
       } else {
@@ -229,7 +240,10 @@ const AddRecordModal = ({ isOpen, onClose, onSave, petId, initialData }) => {
           },
           body: JSON.stringify(payload)
         });
-        if (!res.ok) throw new Error('Failed to create');
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData.error || 'Failed to create');
+        }
         const created = await res.json();
         onSave(created);
       }
@@ -238,7 +252,7 @@ const AddRecordModal = ({ isOpen, onClose, onSave, petId, initialData }) => {
       onClose();
     } catch (err) {
       console.error('Save error', err);
-      alert('Failed to save medical record');
+      alert(err.message || 'Failed to save medical record');
     } finally {
       setIsSubmitting(false);
     }
@@ -417,12 +431,12 @@ const AddRecordModal = ({ isOpen, onClose, onSave, petId, initialData }) => {
             </div>
 
             <div>
-              <label className="text-sm font-semibold text-gray-700 mb-1 block">Attachments</label>
+              <label className="text-sm font-semibold text-gray-700 mb-1 block">Attachments <span className="font-normal text-gray-500">(optional)</span></label>
               <div className="border-2 border-dashed rounded p-3">
                 <input key={fileInputKey} type="file" accept="application/pdf,image/*" multiple onChange={handleFileChange} className="hidden" id="record-files" />
                 <label htmlFor="record-files" className="cursor-pointer flex items-center gap-2 text-sm text-gray-600">
                   <Upload size={18} />
-                  <span>{uploading ? 'Uploading...' : 'Click to upload (PDF, images) — multiple allowed'}</span>
+                  <span>{uploading ? 'Uploading...' : 'Click to upload supporting files (PDF, images)'}</span>
                 </label>
               </div>
               <div className="mt-2 space-y-1">
@@ -430,7 +444,7 @@ const AddRecordModal = ({ isOpen, onClose, onSave, petId, initialData }) => {
                   <div key={idx} className="flex items-center justify-between text-sm bg-gray-50 px-3 py-2 rounded">
                     <div className="truncate">{att.filename || att.fileUrl}</div>
                     <div className="flex gap-2">
-                      <a href={`${API_BASE_URL}${att.fileUrl}`} target="_blank" rel="noreferrer" className="text-blue-600">View</a>
+                      <a href={getFileUrl(att.fileUrl)} target="_blank" rel="noreferrer" className="text-blue-600">View</a>
                       <button type="button" onClick={() => handleRemoveAttachment(idx)} className="text-red-600">Remove</button>
                     </div>
                   </div>
@@ -440,7 +454,7 @@ const AddRecordModal = ({ isOpen, onClose, onSave, petId, initialData }) => {
 
             <div className="flex gap-3 pt-4">
               <button type="button" onClick={onClose} className="flex-1 px-4 py-2 bg-gray-100 rounded">Cancel</button>
-              <button type="submit" disabled={isSubmitting} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded">
+              <button type="submit" disabled={isSubmitting || uploading} className="flex-1 px-4 py-2 bg-blue-600 text-white rounded disabled:cursor-not-allowed disabled:bg-blue-300">
                 {isSubmitting ? 'Saving...' : (initialData ? 'Save Changes' : 'Add Record')}
               </button>
             </div>

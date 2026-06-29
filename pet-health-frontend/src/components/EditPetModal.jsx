@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Upload, XCircle } from 'lucide-react';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, getFileUrl } from '../config';
 
 const EditPetModal = ({ isOpen, onClose, onSave, pet }) => {
   const [formData, setFormData] = useState({
@@ -49,7 +49,7 @@ const EditPetModal = ({ isOpen, onClose, onSave, pet }) => {
       });
       
       if (pet.photoUrl) {
-        setImagePreview(`${API_BASE_URL}${pet.photoUrl}`);
+        setImagePreview(getFileUrl(pet.photoUrl));
       }
     }
   }, [isOpen, pet]);
@@ -99,7 +99,7 @@ const EditPetModal = ({ isOpen, onClose, onSave, pet }) => {
           ...prev,
           photoUrl: data.imageUrl
         }));
-        setImagePreview(`${API_BASE_URL}${data.imageUrl}`);
+        setImagePreview(getFileUrl(data.imageUrl));
         setErrors(prev => ({ ...prev, image: '' }));
       } catch (error) {
         console.error('Error uploading image:', error);

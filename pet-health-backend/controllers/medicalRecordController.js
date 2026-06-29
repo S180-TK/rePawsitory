@@ -128,9 +128,6 @@ exports.createMedicalRecord = async (req, res) => {
 
     // Map incoming payload to schema expected fields
     const attachments = Array.isArray(data.attachments) ? data.attachments : [];
-    if (attachments.length === 0) {
-      return res.status(400).json({ error: 'At least one attachment (PDF or image) is required' });
-    }
 
     const recordType = data.type || 'other';
     const record = new MedicalRecord({
@@ -140,7 +137,7 @@ exports.createMedicalRecord = async (req, res) => {
       // prefer using authenticated user as veterinarian id when they are a vet
       veterinarian: user.role === 'veterinarian' ? user._id : (data.veterinarian || user._id),
       notes: data.notes || '',
-      // attachments must follow { filename, fileUrl, fileType }
+      // attachments must follow { filename, fileUrl, fileType } when present
       attachments: attachments.map(a => ({ filename: a.filename, fileUrl: a.fileUrl, fileType: a.fileType })),
       ...buildTypeSpecificData(data, recordType),
       createdBy: user._id,
@@ -174,7 +171,7 @@ exports.updateMedicalRecord = async (req, res) => {
     if (updates.date !== undefined) existing.date = new Date(updates.date);
     if (updates.veterinarian !== undefined) existing.veterinarian = user.role === 'veterinarian' ? user._id : updates.veterinarian;
     if (updates.notes !== undefined) existing.notes = updates.notes;
-    if (updates.attachments !== undefined && Array.isArray(updates.attachments) && updates.attachments.length > 0) {
+    if (updates.attachments !== undefined && Array.isArray(updates.attachments)) {
       existing.attachments = updates.attachments.map(a => ({ filename: a.filename, fileUrl: a.fileUrl, fileType: a.fileType }));
     }
     if (updates.type !== undefined || typeSpecificFields.some(field => updates[field] !== undefined)) {
