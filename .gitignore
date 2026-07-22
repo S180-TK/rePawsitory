@@ -14,3 +14,4 @@ ARCHITECTURE_*.md
 .env*.local
 .env.production
 pet-health-backend/.DS_Store
+.DS_Store
