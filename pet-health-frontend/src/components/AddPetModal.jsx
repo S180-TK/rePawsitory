@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useId } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Upload, XCircle } from 'lucide-react';
-import { API_BASE_URL } from '../config';
+import { usePetPhotoUpload } from '../hooks/usePetPhotoUpload';
+import PetPhoto from './PetPhoto';
+
 
 const AddPetModal = ({ isOpen, onClose, onSave }) => {
   const [formData, setFormData] = useState({
@@ -13,7 +15,6 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
     weight: '',
     weightUnit: 'kg',
     color: '',
-    photoUrl: '',
     allergies: '',
     chronicConditions: '',
     emergencyContactName: '',
@@ -21,7 +22,10 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
     emergencyContactEmail: '',
     emergencyContactRelationship: ''
   });
-  const [imagePreview, setImagePreview] = useState(null);
+  const imageInput = useRef(null);
+  const imageInputId = useId();
+  const { photoUrl, imagePreview, uploading, uploadError, handleImageChange, handleRemoveImage, reset, canSubmit } =
+    usePetPhotoUpload(isOpen);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -37,87 +41,6 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
         ...prev,
         [name]: ''
       }));
-    }
-  };
-
-  const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        setErrors(prev => ({
-          ...prev,
-          image: 'Please select an image file'
-        }));
-        return;
-      }
-
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        setErrors(prev => ({
-          ...prev,
-          image: 'Image size must be less than 5MB'
-        }));
-        return;
-      }
-
-      // Upload the image to the server
-      try {
-        const formData = new FormData();
-        formData.append('image', file);
-        
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${API_BASE_URL}/api/upload/pet-image`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          body: formData
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to upload image');
-        }
-
-        const data = await response.json();
-        
-        // Store the image URL from server
-        setFormData(prev => ({
-          ...prev,
-          photoUrl: data.imageUrl
-        }));
-        
-        // Create preview URL for display
-        const previewUrl = URL.createObjectURL(file);
-        setImagePreview(previewUrl);
-        
-        // Clear error if exists
-        if (errors.image) {
-          setErrors(prev => ({
-            ...prev,
-            image: ''
-          }));
-        }
-      } catch (error) {
-        console.error('Upload error:', error);
-        setErrors(prev => ({
-          ...prev,
-          image: 'Failed to upload image. Please try again.'
-        }));
-      }
-    }
-  };
-
-  const handleRemoveImage = () => {
-    setFormData(prev => ({
-      ...prev,
-      photoUrl: ''
-    }));
-    setImagePreview(null);
-    // Reset file input
-    const fileInput = document.getElementById('image-upload');
-    if (fileInput) {
-      fileInput.value = '';
     }
   };
 
@@ -150,6 +73,7 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting || !canSubmit()) return;
     
     if (!validateForm()) {
       return;
@@ -169,7 +93,7 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
           date: new Date()
         } : undefined,
         color: formData.color.trim() || '',
-        photoUrl: formData.photoUrl || '',
+        photoUrl,
         allergies: formData.allergies ? formData.allergies.split(',').map(a => a.trim()).filter(a => a) : [],
         chronicConditions: formData.chronicConditions ? formData.chronicConditions.split(',').map(c => c.trim()).filter(c => c).map(condition => ({
           condition,
@@ -196,7 +120,6 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
         weight: '',
         weightUnit: 'kg',
         color: '',
-        photoUrl: '',
         allergies: '',
         chronicConditions: '',
         emergencyContactName: '',
@@ -204,13 +127,8 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
         emergencyContactEmail: '',
         emergencyContactRelationship: ''
       });
-      setImagePreview(null);
+      reset();
       setErrors({});
-      // Reset file input
-      const fileInput = document.getElementById('image-upload');
-      if (fileInput) {
-        fileInput.value = '';
-      }
       onClose();
     } catch (error) {
       console.error('Error saving pet:', error);
@@ -231,6 +149,7 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
   };
 
   const handleClose = () => {
+    if (isSubmitting) return;
     setFormData({
       name: '',
       species: 'Dog',
@@ -240,7 +159,6 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
       weight: '',
       weightUnit: 'kg',
       color: '',
-      photoUrl: '',
       allergies: '',
       chronicConditions: '',
       emergencyContactName: '',
@@ -248,13 +166,8 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
       emergencyContactEmail: '',
       emergencyContactRelationship: ''
     });
-    setImagePreview(null);
+    reset();
     setErrors({});
-    // Reset file input
-    const fileInput = document.getElementById('image-upload');
-    if (fileInput) {
-      fileInput.value = '';
-    }
     onClose();
   };
 
@@ -525,21 +438,29 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
           </div>
 
           <div>
-            <label htmlFor="image-upload" className="block text-sm font-semibold text-gray-700 mb-2">
+            <label htmlFor={imageInputId} className="block text-sm font-semibold text-gray-700 mb-2">
               Pet Photo
             </label>
             
-            {imagePreview ? (
+            <input
+                ref={imageInput}
+                id={imageInputId}
+                type="file"
+                accept="image/*"
+                aria-label="Pet photo"
+                onChange={handleImageChange}
+                disabled={isSubmitting}
+                className="hidden"
+              />
+              {imagePreview ? (
               <div className="relative">
                 <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-gray-300">
-                  <img 
-                    src={imagePreview} 
-                    alt="Pet preview" 
-                    className="w-full h-full object-cover"
+                  <PetPhoto photoUrl={photoUrl} name="Pet preview" imageClassName="w-full h-full object-cover"
                   />
                   <button
                     type="button"
                     onClick={handleRemoveImage}
+                    disabled={isSubmitting}
                     className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
                     aria-label="Remove image"
                   >
@@ -548,7 +469,8 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => document.getElementById('image-upload').click()}
+                  onClick={() => imageInput.current?.click()}
+                  disabled={isSubmitting}
                   className="mt-2 w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-semibold"
                 >
                   Change Photo
@@ -556,14 +478,7 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
               </div>
             ) : (
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
-                <input
-                  type="file"
-                  id="image-upload"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
-                <label htmlFor="image-upload" className="cursor-pointer">
+                <label htmlFor={imageInputId} className="cursor-pointer">
                   <Upload size={32} className="mx-auto text-gray-400 mb-2" />
                   <p className="text-sm text-gray-600 font-semibold mb-1">
                     Click to upload or drag and drop
@@ -575,7 +490,15 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
               </div>
             )}
             
-            {errors.image && <p className="mt-1 text-sm text-red-500">{errors.image}</p>}
+            {(uploading || uploadError) && (
+                <div role="status" className="text-sm text-gray-600">
+                  {uploading && 'Uploading photo… '}
+                  <button type="button" onClick={handleRemoveImage} disabled={isSubmitting}>
+                    Remove photo
+                  </button>
+                </div>
+              )}
+              {uploadError && <p role="alert" className="mt-1 text-sm text-red-500">{uploadError}</p>}
             <p className="mt-1 text-xs text-gray-500">Upload a photo of your pet (optional)</p>
           </div>
 
@@ -591,7 +514,7 @@ const AddPetModal = ({ isOpen, onClose, onSave }) => {
             <button
               type="submit"
               className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={isSubmitting}
+              disabled={isSubmitting || uploading || !!uploadError}
             >
               {isSubmitting ? 'Saving...' : 'Save Pet'}
             </button>

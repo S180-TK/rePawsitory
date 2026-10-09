@@ -61,21 +61,10 @@ const LoginPage = ({ login, switchToSignup }) => {
         throw new Error(data.error || 'Login failed');
       }
 
-      // Store the token in localStorage FIRST (synchronously)
-      console.log('🔐 Saving token to localStorage:', data.token);
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      console.log('✅ Token saved. Verifying:', localStorage.getItem('token'));
-
-      console.log('Login successful:', data.user);
-
-      // Call the login function with user data
-      if (data.user && data.user.role) {
-        console.log('🚀 Calling navigation.login with role:', data.user.role);
-        login(data.user.role);
-      } else {
+      if (!data.token || !data.user?.role || !(data.user.id || data.user._id)) {
         throw new Error('Invalid user data received');
       }
+      login(data.user, data.token);
     } catch (err) {
       setError(err.message);
     } finally {

@@ -14,29 +14,38 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize auth state from localStorage on mount
+  const [sessionId, setSessionId] = useState(0);
+
+  // Restore on refresh and react to login/logout in another tab.
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    
-    if (storedToken && storedUser) {
+    const restore = () => {
+      const storedToken = localStorage.getItem('token');
+      let storedUser = null;
       try {
-        const parsedUser = JSON.parse(storedUser);
-        setToken(storedToken);
-        setUser(parsedUser);
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error('Error parsing stored user:', error);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        storedUser = JSON.parse(localStorage.getItem('user') || 'null');
+      } catch {
+        // Invalid persisted state is treated as a signed-out session.
       }
-    }
-    setIsLoading(false);
+      const valid = storedToken && (storedUser?.id || storedUser?._id) &&
+        ['owner', 'pet_owner', 'vet', 'veterinarian', 'admin'].includes(storedUser?.role);
+      setToken(valid ? storedToken : null);
+      setUser(valid ? storedUser : null);
+      setIsAuthenticated(Boolean(valid));
+      setSessionId(value => value + 1);
+      setIsLoading(false);
+    };
+    restore();
+    const onStorage = event => {
+      if (event.key === null || event.key === 'token' || event.key === 'user') restore();
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
   }, []);
 
   const login = (userData, authToken) => {
     localStorage.setItem('token', authToken);
     localStorage.setItem('user', JSON.stringify(userData));
+    setSessionId(value => value + 1);
     setToken(authToken);
     setUser(userData);
     setIsAuthenticated(true);
@@ -45,6 +54,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    setSessionId(value => value + 1);
     setToken(null);
     setUser(null);
     setIsAuthenticated(false);
@@ -53,6 +63,7 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     token,
+    sessionId,
     isAuthenticated,
     isLoading,
     login,

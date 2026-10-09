@@ -4,11 +4,9 @@ import AddPetModal from '../components/AddPetModal';
 import { API_BASE_URL } from '../config';
 import EditPetModal from '../components/EditPetModal';
 import PetRecordsPage from './PetRecordsPage';
-import { useNavigation } from '../hooks/useNavigation';
 import PetPhoto from '../components/PetPhoto';
 
-const PetsPage = ({ pets, petsLoading, petsError, addPet, refetchPets }) => {
-  const { navigateTo } = useNavigation();
+const PetsPage = ({ pets, petsLoading, petsError, addPet, refetchPets, updatePet, setCurrentPage }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [profileComplete, setProfileComplete] = useState(true);
   const [checkingProfile, setCheckingProfile] = useState(true);
@@ -21,14 +19,12 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet, refetchPets }) => {
     const checkProfileCompletion = async () => {
       try {
         const token = localStorage.getItem('token');
-        console.log('🏠 PetsPage: Reading token from localStorage:', token ? token.substring(0, 20) + '...' : 'NULL');
         const response = await fetch(`${API_BASE_URL}/api/profile`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
 
-        console.log('🏠 PetsPage: Profile response status:', response.status);
         if (response.ok) {
           const data = await response.json();
           setProfileComplete(data.user.profileCompleted || false);
@@ -53,12 +49,10 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet, refetchPets }) => {
     }
   };
 
-  const handleUpdatePet = async () => {
+  const handleUpdatePet = async (updated) => {
+    updatePet(updated);
     // Refresh the pets list after updating
     setEditingPet(null);
-    if (refetchPets) {
-      refetchPets(); // Refresh pets data without reloading the page
-    }
   };
 
   // Helper function to calculate age from date of birth
@@ -87,16 +81,18 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet, refetchPets }) => {
     }
   };
 
+  const currentPet = pets.find(pet => pet._id === selectedPet?._id);
+
   // If viewing a pet's records, show PetRecordsPage
-  if (selectedPet && viewMode === 'view') {
+  if (currentPet && viewMode === 'view') {
     return (
       <PetRecordsPage 
-        pet={selectedPet} 
+        pet={currentPet}
         onBack={() => setSelectedPet(null)}
         viewOnly={false}
         isOwner={true}
         onEditPet={() => {
-          setEditingPet(selectedPet);
+          setEditingPet(currentPet);
           setSelectedPet(null);
           setViewMode(null);
         }}
@@ -131,7 +127,7 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet, refetchPets }) => {
                 You need to add your phone number and address in Settings before you can add pets to your account.
               </p>
               <button
-                onClick={() => navigateTo('settings')}
+                onClick={() => setCurrentPage('settings')}
                 className="flex items-center gap-2 bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700 transition-colors font-semibold"
               >
                 <Settings size={18} />
@@ -156,12 +152,6 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet, refetchPets }) => {
         </div>
       )}
 
-      <AddPetModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={addPet}
-      />
-
       <div className="flex items-center gap-4 bg-white p-4 rounded-lg shadow-md">
         <Search size={20} className="text-gray-400" />
         <input
@@ -171,12 +161,13 @@ const PetsPage = ({ pets, petsLoading, petsError, addPet, refetchPets }) => {
         />
       </div>
 
-      {petsLoading ? (
+      {petsError && pets.length > 0 && <p role="alert">Could not refresh pets. Showing previously loaded data.</p>}
+      {petsLoading && pets.length === 0 ? (
         <div className="text-center p-12">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
           <p className="text-gray-600">Loading your pets...</p>
         </div>
-      ) : petsError ? (
+      ) : petsError && pets.length === 0 ? (
         <div className="text-center p-12 bg-red-50 rounded-lg">
           <p className="text-red-600 mb-2">Failed to load pets</p>
           <p className="text-gray-600 text-sm">Please try refreshing the page</p>

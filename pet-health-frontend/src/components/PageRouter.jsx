@@ -17,6 +17,7 @@ const PageRouter = ({
   petsError, 
   addPet,
   refetchPets,
+  updatePet,
   patients,
   patientsLoading,
   patientsError,
@@ -27,7 +28,7 @@ const PageRouter = ({
       return <DashboardPage userRole={userRole} pets={pets} recentRecords={recentRecords} petsLoading={petsLoading} petsError={petsError} addPet={addPet} setCurrentPage={setCurrentPage} />;
     case 'pets':
       // Pet owners see their own pets
-      return <PetsPage pets={pets} petsLoading={petsLoading} petsError={petsError} addPet={addPet} refetchPets={refetchPets} />;
+      return <PetsPage pets={pets} petsLoading={petsLoading} petsError={petsError} addPet={addPet} refetchPets={refetchPets} updatePet={updatePet} setCurrentPage={setCurrentPage} />;
     case 'patients':
       // Veterinarians see their patients
       return <PatientsPage patients={patients} patientsLoading={patientsLoading} patientsError={patientsError} />;

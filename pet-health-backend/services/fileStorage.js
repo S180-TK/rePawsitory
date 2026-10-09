@@ -67,12 +67,12 @@ const streamFileByPath = async (req, res, next) => {
 
     res.setHeader('Content-Type', contentType);
     res.setHeader('Content-Length', file.length);
-    res.setHeader('Content-Disposition', `inline; filename="${displayName.replace(/"/g, '')}"`);
+    res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${encodeURIComponent(displayName)}`);
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
 
-    bucket.openDownloadStream(file._id)
-      .on('error', next)
-      .pipe(res);
+    const download = bucket.openDownloadStream(file._id);
+    res.on('close', () => download.destroy());
+    download.on('error', next).pipe(res);
   } catch (error) {
     next(error);
   }

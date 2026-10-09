@@ -5,77 +5,45 @@ import { useNavigation } from '../hooks/useNavigation';
 import { useMockData } from '../hooks/useMockData';
 import { usePets } from '../hooks/usePets';
 import { usePatients } from '../hooks/usePatients';
+import { useAuth } from '../contexts/AuthContext';
 import LoginPage from './LoginPage';
 import SignupPage from './SignupPage';
 import LandingPage from './LandingPage';
 
-const PetHealthApp = () => {
+// Remount all account-specific lists, selections and forms on session changes.
+const AuthenticatedApp = () => {
   const navigation = useNavigation();
-  const [authView, setAuthView] = useState('landing'); // 'landing' | 'login' | 'signup'
   const { recentRecords } = useMockData();
-  
-  // Hooks are called unconditionally, but they check isAuthenticated inside
-  const { pets, loading, error, addPet, refetch: refetchPets } = usePets();
-  const { patients, loading: patientsLoading, error: patientsError, refetch: refetchPatients } = usePatients();
+  const { pets, loading, error, addPet, refetch: refetchPets, updatePet } = usePets();
+  const { patients, loading: patientsLoading, error: patientsError } = usePatients();
 
   return (
-    <>
-      {!navigation.isAuthenticated ? (
-        authView === 'landing' ? (
-          <LandingPage onLogin={() => setAuthView('login')} />
-        ) : authView === 'login' ? (
-          <LoginPage 
-            login={(role) => {
-              navigation.login(role);
-              // Trigger refetch after login
-              setTimeout(() => {
-                if (refetchPets) refetchPets();
-                if (refetchPatients) refetchPatients();
-              }, 100);
-            }}
-            switchToSignup={() => setAuthView('signup')} 
-          />
-        ) : (
-          <SignupPage 
-            signup={(role) => {
-              navigation.signup(role);
-              // Trigger refetch after signup
-              setTimeout(() => {
-                if (refetchPets) refetchPets();
-                if (refetchPatients) refetchPatients();
-              }, 100);
-            }}
-            switchToLogin={() => setAuthView('login')} 
-          />
-        )
-      ) : (
-        <Layout 
-          sidebarOpen={navigation.sidebarOpen}
-          setSidebarOpen={navigation.setSidebarOpen}
-          userRole={navigation.userRole}
-          navItems={navigation.navItems}
-          currentPage={navigation.currentPage}
-          setCurrentPage={navigation.setCurrentPage}
-          logout={navigation.logout}
-        >
-          <PageRouter 
-            currentPage={navigation.currentPage}
-            userRole={navigation.userRole}
-            pets={pets}
-            recentRecords={recentRecords}
-            petsLoading={loading}
-            petsError={error}
-            addPet={addPet}
-            refetchPets={refetchPets}
-            patients={patients}
-            patientsLoading={patientsLoading}
-            patientsError={patientsError}
-            setCurrentPage={navigation.setCurrentPage}
-          />
-        </Layout>
-      )}
-    </>
+    <Layout {...navigation}>
+      <PageRouter
+        {...navigation}
+        pets={pets}
+        recentRecords={recentRecords}
+        petsLoading={loading}
+        petsError={error}
+        addPet={addPet}
+        refetchPets={refetchPets}
+        updatePet={updatePet}
+        patients={patients}
+        patientsLoading={patientsLoading}
+        patientsError={patientsError}
+      />
+    </Layout>
   );
+};
+
+const PetHealthApp = () => {
+  const { isAuthenticated, isLoading, sessionId, login } = useAuth();
+  const [authView, setAuthView] = useState('landing');
+  if (isLoading) return null;
+  if (isAuthenticated) return <AuthenticatedApp key={sessionId} />;
+  if (authView === 'landing') return <LandingPage onLogin={() => setAuthView('login')} />;
+  if (authView === 'signup') return <SignupPage switchToLogin={() => setAuthView('login')} />;
+  return <LoginPage login={login} switchToSignup={() => setAuthView('signup')} />;
 };
 
 export default PetHealthApp;

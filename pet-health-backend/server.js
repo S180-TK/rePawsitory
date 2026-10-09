@@ -65,6 +65,7 @@ if (!isVercel && process.env.NODE_ENV !== 'production') {
   app.use('/uploads', express.static(uploadsPath));
 }
 app.use('/uploads', (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
   res.status(404).json({
     error: 'File Not Found',
     message: 'This file is no longer available and needs to be re-uploaded.'
@@ -130,7 +131,13 @@ app.use((req, res) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
+  if (res.headersSent) return next(err);
+  // A failed stream must not retain successful image length/cache headers.
+  res.removeHeader('Content-Type');
+  res.removeHeader('Content-Length');
+  res.removeHeader('Content-Disposition');
+  res.setHeader('Cache-Control', 'no-store');
+  console.error('Request failed:', err.name);
   res.status(err.status || 500).json({
     error: err.message || 'Internal Server Error',
     ...(process.env.NODE_ENV !== 'production' && { stack: err.stack })

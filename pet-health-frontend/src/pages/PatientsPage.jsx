@@ -50,9 +50,10 @@ const PatientsPage = ({ patients, patientsLoading, patientsError }) => {
     }
   };
 
-  if (selectedPet) {
+  const currentPet = patients.find(patient => patient._id === selectedPet?._id);
+  if (currentPet) {
     return (
-      <PetRecordsPage pet={selectedPet} onBack={() => setSelectedPet(null)} />
+      <PetRecordsPage pet={currentPet} onBack={() => setSelectedPet(null)} />
     );
   }
 
@@ -88,12 +89,13 @@ const PatientsPage = ({ patients, patientsLoading, patientsError }) => {
         )}
       </div>
 
-      {patientsLoading ? (
+      {patientsError && patients.length > 0 && <p role="alert">Could not refresh patients. Showing previously loaded data.</p>}
+      {patientsLoading && patients.length === 0 ? (
         <div className="text-center p-12">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
           <p className="text-gray-600">Loading your patients...</p>
         </div>
-      ) : patientsError ? (
+      ) : patientsError && patients.length === 0 ? (
         <div className="text-center p-12 bg-red-50 rounded-lg">
           <p className="text-red-600 mb-2">Failed to load patients</p>
           <p className="text-gray-600 text-sm">{patientsError.message || 'Please try refreshing the page'}</p>

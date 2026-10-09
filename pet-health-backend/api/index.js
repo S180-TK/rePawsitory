@@ -16,6 +16,7 @@ module.exports = async (req, res) => {
   } catch (error) {
     console.error('❌ Serverless function error:', error);
     res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Cache-Control', 'no-store');
     res.statusCode = 500;
     res.end(JSON.stringify({ 
       error: 'Internal Server Error',

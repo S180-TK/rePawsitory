@@ -1,11 +1,12 @@
+import { useAuth } from '../contexts/AuthContext';
 import { useState } from 'react';
-import { Home, Users, FileText, Share2, Settings, Calendar, Heart, Search } from 'lucide-react';
+import { Home, Users, FileText, Share2, Settings, Heart, Search } from 'lucide-react';
 
 export const useNavigation = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [userRole, setUserRole] = useState(null); // 'owner' or 'vet'
-  const [currentPage, setCurrentPage] = useState('dashboard');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
+  const userRole = user?.role === 'pet_owner' ? 'owner' : user?.role === 'veterinarian' ? 'vet' : user?.role;
+  const [currentPage, setCurrentPage] = useState(userRole === 'admin' ? 'admin' : 'dashboard');
 
   // Navigation items based on role
   const ownerNavItems = [
@@ -30,50 +31,14 @@ export const useNavigation = () => {
 
   const navItems = userRole === 'owner' ? ownerNavItems : userRole === 'admin' ? adminNavItems : vetNavItems;
 
-  const login = (role) => {
-    console.log('Login called with role:', role); // Add debug logging
-    if (role !== 'owner' && role !== 'vet' && role !== 'admin') {
-      console.error('Invalid role:', role);
-      return;
-    }
-    setUserRole(role);
-    setIsAuthenticated(true);
-    setCurrentPage(role === 'admin' ? 'admin' : 'dashboard');
-  };
-
-  const signup = (role) => {
-    // In a real app, call backend to create account then set auth
-    if (role !== 'owner' && role !== 'vet' && role !== 'admin') return;
-    setUserRole(role);
-    setIsAuthenticated(true);
-    setCurrentPage(role === 'admin' ? 'admin' : 'dashboard');
-  };
-
-  const logout = () => {
-    // Clear authentication state
-    setIsAuthenticated(false);
-    setUserRole(null);
-    setCurrentPage('dashboard');
-    
-    // Clear localStorage
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    
-    // Force a page reload to clear all state
-    window.location.reload();
-  };
-
   return {
     sidebarOpen,
     setSidebarOpen,
     userRole,
-    setUserRole,
     currentPage,
     setCurrentPage,
     navItems,
     isAuthenticated,
-    login,
-    signup,
     logout
   };
 };

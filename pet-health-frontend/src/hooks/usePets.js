@@ -1,100 +1,30 @@
-import { useEffect, useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { useAuthenticatedList } from './useAuthenticatedList';
 import { API_BASE_URL } from '../config';
 
 export const usePets = () => {
-  const [pets, setPets] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [refetchTrigger, setRefetchTrigger] = useState(0);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchPets = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const token = localStorage.getItem('token');
-        const user = localStorage.getItem('user');
-        
-        console.log('🐾 usePets: Reading token from localStorage:', token ? token.substring(0, 20) + '...' : 'NULL');
-        
-        // Don't fetch if no token or user
-        if (!token || !user) {
-          console.log('❌ usePets: No token or user, skipping fetch');
-          if (isMounted) {
-            setPets([]);
-            setLoading(false);
-          }
-          return;
-        }
-
-        console.log('📡 usePets: Fetching pets with token...');
-        const response = await fetch(`${API_BASE_URL}/pets`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        if (!response.ok) {
-          console.error('❌ usePets: Fetch failed with status:', response.status);
-          throw new Error(`Request failed with status ${response.status}`);
-        }
-        const data = await response.json();
-        console.log('✅ usePets: Successfully fetched', data.length, 'pets');
-        if (isMounted) {
-          setPets(Array.isArray(data) ? data : []);
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(err);
-          setPets([]); // Clear pets on error
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchPets();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [refetchTrigger]); // Re-fetch when refetchTrigger changes
-
-  const addPet = async (petData = { name: 'New Pet', species: 'Dog', breed: 'Unknown', age: 0, photo: '🐾' }) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/pets`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(petData)
-      });
-      if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}`);
-      }
-      const created = await response.json();
-      setPets(prev => Array.isArray(prev) ? [...prev, created] : [created]);
-      // Trigger a refetch to ensure we have the latest data
-      setRefetchTrigger(prev => prev + 1);
-      return created;
-    } catch (err) {
-      setError(err);
-      throw err;
+  const { user } = useAuth();
+  const list = useAuthenticatedList('/pets', ['owner', 'pet_owner'].includes(user?.role));
+  const addPet = async petData => {
+    if (!list.token || !list.isCurrent()) throw new Error('Please log in again');
+    const response = await fetch(`${API_BASE_URL}/pets`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${list.token}` },
+      body: JSON.stringify(petData)
+    });
+    const created = await response.json();
+    if (!response.ok) {
+      const error = new Error(created.error || `Request failed with status ${response.status}`);
+      error.response = { data: created };
+      throw error;
     }
+    if (list.isCurrent()) {
+      list.upsert(created);
+      // Include pre-existing pets even if creation finished before the initial GET.
+      list.refetch();
+    }
+    return created;
   };
-
-  const refetch = () => {
-    console.log('🔄 usePets: refetch() called, incrementing trigger');
-    setRefetchTrigger(prev => prev + 1);
-  };
-
-  return { pets, loading, error, addPet, refetch };
+  const updatePet = pet => { if (list.isCurrent()) list.upsert(pet); };
+  return { pets: list.items, loading: list.loading, error: list.error, addPet, updatePet, refetch: list.refetch };
 };
-
-
-
